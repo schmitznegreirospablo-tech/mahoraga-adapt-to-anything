@@ -1,0 +1,9 @@
+# Noita's own game data (unpacked with tools/wakunpack): belongs to Nolla Games, never published
+vanilla/
+
+# Compiled helper tools: rebuild from the .cs sources (see README.md)
+tools/*.exe
+
+# Local scratch
+*.log
+Thumbs.db

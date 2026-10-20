@@ -1,0 +1,14 @@
+<!-- GENERATED from sheets/boss.json by tools/gen.ps1 -->
+<Sprite filename="mods/mahoraga/files/gfx/mahoraga.png" offset_x="16" offset_y="43" default_animation="stand">
+	<RectAnimation name="stand" pos_x="0" pos_y="0" frame_count="2" frame_width="40" frame_height="44" frame_wait="0.35" frames_per_row="4" loop="1" />
+	<RectAnimation name="walk" pos_x="0" pos_y="44" frame_count="4" frame_width="40" frame_height="44" frame_wait="0.14" frames_per_row="4" loop="1" />
+	<RectAnimation name="run" pos_x="0" pos_y="44" frame_count="4" frame_width="40" frame_height="44" frame_wait="0.1" frames_per_row="4" loop="1" />
+	<RectAnimation name="burn" pos_x="0" pos_y="44" frame_count="4" frame_width="40" frame_height="44" frame_wait="0.1" frames_per_row="4" loop="1" />
+	<RectAnimation name="attack" pos_x="0" pos_y="88" frame_count="4" frame_width="40" frame_height="44" frame_wait="0.08" frames_per_row="4" loop="0" />
+	<RectAnimation name="attack_ranged" pos_x="0" pos_y="88" frame_count="4" frame_width="40" frame_height="44" frame_wait="0.08" frames_per_row="4" loop="0" />
+	<RectAnimation name="jump_up" pos_x="0" pos_y="132" frame_count="1" frame_width="40" frame_height="44" frame_wait="0.2" frames_per_row="4" loop="0" />
+	<RectAnimation name="jump_fall" pos_x="0" pos_y="132" frame_count="1" frame_width="40" frame_height="44" frame_wait="0.2" frames_per_row="4" loop="0" />
+	<RectAnimation name="land" pos_x="0" pos_y="132" frame_count="2" frame_width="40" frame_height="44" frame_wait="0.1" frames_per_row="4" loop="0" />
+	<RectAnimation name="fly_idle" pos_x="0" pos_y="132" frame_count="2" frame_width="40" frame_height="44" frame_wait="0.2" frames_per_row="4" loop="1" />
+	<RectAnimation name="fly_move" pos_x="0" pos_y="132" frame_count="2" frame_width="40" frame_height="44" frame_wait="0.2" frames_per_row="4" loop="1" />
+</Sprite>

@@ -1,0 +1,223 @@
+dofile_once("mods/mahoraga/files/scripts/common.lua")
+
+local me = GetUpdatedEntityID()
+local now = GameGetFrameNum()
+local x, y = EntityGetTransform( me )
+local B = MAHORAGA_BOSS.mahoraga
+
+-- Wheel turning animation after an adaptation (boss_damage.lua sets wheel_spin).
+do
+	local spin = mh_get( me, "wheel_spin", -1000 )
+	local t = now - spin
+	local sprites = EntityGetComponent( me, "SpriteComponent", "mahoraga_wheel" )
+	if sprites ~= nil and t >= 0 and t <= 40 then
+		local img = B.wheel_sprite
+		if t < 36 then img = "mods/mahoraga/files/gfx/wheel_" .. tostring( math.floor( t / 6 ) ) .. ".png" end
+		ComponentSetValue2( sprites[1], "image_file", img )
+		EntityRefreshSprite( me, sprites[1] )
+	end
+end
+
+local dmc = EntityGetFirstComponent( me, "DamageModelComponent" )
+local hp, max_hp = ComponentGetValue2( dmc, "hp" ), ComponentGetValue2( dmc, "max_hp" )
+local phase = 1
+if hp < max_hp * B.phase2_hp_frac then phase = 2 end
+if phase == 2 and mh_get( me, "phase2_announced", 0 ) == 0 then
+	mh_set( me, "phase2_announced", 1 )
+	GamePrintImportant( "$animal_mahoraga", "The wheel spins faster..." )
+	GamePlaySound( "data/audio/Desktop/event_cues.bank", "event_cues/angered_the_gods/create", x, y )
+end
+
+local player = mh_player()
+if player == nil then return end
+local px, py = EntityGetTransform( player )
+py = py - 6
+
+local ai = EntityGetFirstComponentIncludingDisabled( me, "AnimalAIComponent" )
+local cdc = EntityGetFirstComponent( me, "CharacterDataComponent" )
+
+local function set_ai( on ) if ai ~= nil then EntitySetComponentIsEnabled( me, ai, on ) end end
+local function face( tx ) local _, _, _, sx = EntityGetTransform( me ); EntitySetTransform( me, x, y, 0, ( tx < x ) and -1 or 1, 1 ) end
+local function sound( a ) GamePlaySound( a.sound_bank, a.sound_event, x, y ) end
+local power = mh_power( me )
+local function shoot( pid, sx, sy, vx, vy )
+	local p = MAHORAGA_PROJECTILES[ pid ]
+	local e = shoot_projectile( me, p.file, sx, sy, vx, vy )
+	mh_scale_projectile( e, power )
+	return e
+end
+local function unlocked( a ) return a.unlock == "" or mh_get( me, "adapted_" .. a.unlock, 0 ) == 1 end
+
+-- Holy Shower keeps falling for its whole duration, alongside his other attacks.
+do
+	local until_f = mh_get( me, "rain_until", 0 )
+	if now < until_f then
+		local a = MAHORAGA_ATTACKS[ MAHORAGA_ATTACKS_ORDER[ mh_get( me, "rain_attack", 1 ) ] ]
+		if ( until_f - now ) % a.repeat_gap_frames == 0 then
+			local p = MAHORAGA_PROJECTILES[ a.projectile ]
+			SetRandomSeed( now, x + me )
+			for i = 1, a.count do
+				local lx = px + Random( -a.area, a.area )
+				-- start just under the ceiling so the lance falls through open air
+				local hit, hx, hy = RaytracePlatforms( lx, py, lx, py - 240 )
+				local ly = hit and ( hy + 8 ) or ( py - 240 )
+				shoot( a.projectile, lx, ly, Random( -10, 10 ), p.speed )
+			end
+		end
+	end
+end
+
+-- Current attack state
+local cur = mh_get( me, "attack", 0 )          -- index into MAHORAGA_ATTACKS_ORDER, 0 = none
+local started = mh_get( me, "attack_start", 0 )
+
+local function start_attack( pick )
+	local a = MAHORAGA_ATTACKS[ MAHORAGA_ATTACKS_ORDER[ pick ] ]
+	local cd = a.cooldown_frames
+	if phase == 2 then cd = cd * B.phase2_cooldown_mult end
+	mh_set( me, "ready_" .. a.id, now + cd )
+	mh_set( me, "attack", pick )
+	mh_set( me, "attack_start", now )
+	mh_set( me, "aim_x", px )
+	mh_set( me, "aim_y", py )
+	set_ai( false )
+	face( px )
+	GamePlayAnimation( me, "attack", 10 )
+	if a.warning ~= "" then GamePrint( a.warning ) end
+end
+
+if cur == 0 then
+	if now < mh_get( me, "next_think", 0 ) then return end
+	mh_set( me, "next_think", now + B.attack_think_frames )
+	local dist = math.sqrt( ( px - x ) ^ 2 + ( py - y ) ^ 2 )
+	if dist > 450 then return end
+	local choices = {}
+	for i, id in ipairs( MAHORAGA_ATTACKS_ORDER ) do
+		local a = MAHORAGA_ATTACKS[ id ]
+		if a.phase <= phase and unlocked( a ) and dist >= a.range_min and dist <= a.range_max and now >= mh_get( me, "ready_" .. id, 0 ) then
+			table.insert( choices, i )
+		end
+	end
+	if #choices == 0 then return end
+	SetRandomSeed( now + x, y + me )
+	start_attack( choices[ Random( 1, #choices ) ] )
+	return
+end
+
+local a = MAHORAGA_ATTACKS[ MAHORAGA_ATTACKS_ORDER[ cur ] ]
+local t = now - started
+local ax, ay = mh_get( me, "aim_x", px ), mh_get( me, "aim_y", py )
+local sx, sy = x, y - 26
+
+local function finish()
+	mh_set( me, "attack", 0 )
+	set_ai( true )
+end
+
+if t < a.windup_frames then
+	-- telegraph: stand still and glow
+	if cdc ~= nil then local vx, vy = ComponentGetValue2( cdc, "mVelocity" ); ComponentSetValue2( cdc, "mVelocity", vx * 0.8, vy ) end
+	return
+end
+local at = t - a.windup_frames
+
+if a.behavior == "fan_at_target" then
+	if at == 0 then
+		sound( a )
+		local base = math.atan2( ay - sy, ax - sx )
+		local spd = MAHORAGA_PROJECTILES[ a.projectile ].speed
+		for i = 1, a.count do
+			local off = 0
+			if a.count > 1 then off = ( ( i - 1 ) / ( a.count - 1 ) - 0.5 ) * math.rad( a.spread_deg ) end
+			shoot( a.projectile, sx, sy, math.cos( base + off ) * spd, math.sin( base + off ) * spd )
+		end
+	end
+	if at > 12 then finish() end
+
+elseif a.behavior == "leap_then_blast" then
+	if at == 0 and cdc ~= nil then
+		local dx = math.max( -220, math.min( 220, ( ax - x ) * 1.6 ) )
+		ComponentSetValue2( cdc, "mVelocity", dx, -260 )
+		GamePlayAnimation( me, "jump_up", 10 )
+	end
+	local grounded = cdc ~= nil and ComponentGetValue2( cdc, "is_on_ground" )
+	if ( at > 8 and grounded ) or at > 100 then
+		sound( a )
+		shoot( "slam_blast", x, y - 2, 0, 0 )
+		local spd = MAHORAGA_PROJECTILES[ a.projectile ].speed
+		for i = 1, a.count do
+			local ang = -math.pi * 0.5 + ( ( i - 1 ) / ( a.count - 1 ) - 0.5 ) * math.rad( a.spread_deg )
+			shoot( a.projectile, x, y - 8, math.cos( ang ) * spd, math.sin( ang ) * spd )
+		end
+		GameScreenshake( 40, x, y )
+		finish()
+	end
+
+elseif a.behavior == "dash_digging" then
+	local dir = mh_get( me, "dash_dir", 0 )
+	if at == 0 then
+		dir = math.atan2( ay - sy, ax - x )
+		mh_set( me, "dash_dir", dir )
+		sound( a )
+	end
+	if cdc ~= nil then ComponentSetValue2( cdc, "mVelocity", math.cos( dir ) * 320, math.sin( dir ) * 320 - 20 ) end
+	if at % a.repeat_gap_frames == 0 then
+		shoot( a.projectile, x + math.cos( dir ) * 14, y - 16 + math.sin( dir ) * 14, 0, 0 )
+	end
+	if at >= a.repeats * a.repeat_gap_frames then finish() end
+
+elseif a.behavior == "ring" then
+	if at % a.repeat_gap_frames == 0 and at < a.repeats * a.repeat_gap_frames then
+		sound( a )
+		local spd = MAHORAGA_PROJECTILES[ a.projectile ].speed
+		local rot = ( at / a.repeat_gap_frames ) * math.pi / a.count
+		for i = 1, a.count do
+			local ang = rot + ( i - 1 ) * math.rad( a.spread_deg ) / a.count
+			shoot( a.projectile, x, y - 26, math.cos( ang ) * spd, math.sin( ang ) * spd )
+		end
+	end
+	if at >= a.repeats * a.repeat_gap_frames then finish() end
+elseif a.behavior == "lob_at_target" then
+	-- thrown in an arc that lands on where the player stood
+	if at == 0 then
+		sound( a )
+		local p = MAHORAGA_PROJECTILES[ a.projectile ]
+		local T = 0.9
+		local vx = ( ax - sx ) / T
+		local vy = ( ay - sy ) / T - 0.5 * p.gravity_y * T
+		shoot( a.projectile, sx, sy, vx, vy )
+	end
+	if at > 12 then finish() end
+
+elseif a.behavior == "blast_at_self" then
+	-- one blast at Mahoraga (or offset_x in front of him); damage types other than
+	-- explosion are dealt to everything caught in the blast
+	if at == 0 then
+		sound( a )
+		local dir = ( ax < x ) and -1 or 1
+		local bx, by = x + dir * a.offset_x, y - 20
+		shoot( a.projectile, bx, by, 0, 0 )
+		local p = MAHORAGA_PROJECTILES[ a.projectile ]
+		if p.damage_type ~= "explosion" and p.damage > 0 then
+			local dtype = "DAMAGE_" .. string.upper( p.damage_type )
+			for _, e in ipairs( EntityGetInRadiusWithTag( bx, by, p.explosion_radius, "mortal" ) or {} ) do
+				if e ~= me then
+					EntityInflictDamage( e, p.damage * power, dtype, MAHORAGA_ADAPT[ p.damage_type ].message_key, "NORMAL", dir * 40, -30, me )
+					if p.damage_type == "electricity" then LoadGameEffectEntityTo( e, "data/entities/misc/effect_electricity.xml" ) end
+				end
+			end
+		end
+		GameScreenshake( math.min( 100, p.explosion_radius ), bx, by )
+	end
+	if at > 20 then finish() end
+
+elseif a.behavior == "rain" then
+	if at == 0 then
+		sound( a )
+		mh_set( me, "rain_attack", cur )
+		mh_set( me, "rain_until", now + a.repeats * a.repeat_gap_frames )
+	end
+	if at > 10 then finish() end
+else
+	finish()
+end

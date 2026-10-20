@@ -1,0 +1,59 @@
+<!-- GENERATED from sheets/boss.json row 'mahoraga' by tools/gen.ps1 -->
+<Entity name="$animal_mahoraga" tags="enemy,mortal,hittable,homing_target,teleportable_NOT,boss,miniboss,polymorphable_NOT,necrobot_NOT,glue_NOT,touchmagic_immunity,mahoraga,music_energy_100_near">
+	<Base file="data/entities/base_enemy_basic.xml">
+		<ItemChestComponent level="5" />
+		<AnimalAIComponent
+			preferred_job="JobDefault"
+			escape_if_damaged_probability="0"
+			creature_detection_range_x="500"
+			creature_detection_range_y="300"
+			needs_food="0"
+			sense_creatures="1"
+			attack_ranged_enabled="0"
+			attack_melee_enabled="1"
+			attack_melee_damage_min="0.8"
+			attack_melee_damage_max="0.8"
+			attack_melee_max_distance="22"
+			attack_melee_frames_between="40"
+			can_fly="0"
+			aggressiveness_min="100"
+			aggressiveness_max="100" />
+		<DamageModelComponent
+			hp="160"
+			max_hp="160"
+			air_needed="1"
+			air_in_lungs_max="5"
+			air_lack_of_damage="0.6"
+			fire_probability_of_ignition="0.2"
+			falling_damages="0"
+			materials_damage="1"
+			ragdoll_material="meat"
+			ragdoll_filenames_file=""
+			blood_material="blood"
+			blood_multiplier="0.5"
+			physics_objects_damage="0"
+			critical_damage_resistance="1">
+			<damage_multipliers drill="1" />
+		</DamageModelComponent>
+		<SpriteComponent image_file="mods/mahoraga/files/gfx/mahoraga.xml" offset_x="0" offset_y="0" />
+		<PathFindingComponent can_jump="1" can_fly="0" jump_speed="160" initial_jump_lob="1" initial_jump_max_distance_x="120" initial_jump_max_distance_y="80" />
+		<GenomeDataComponent herd_id="boss_limbs" food_chain_rank="1" is_predator="1" />
+		<CharacterPlatformingComponent run_velocity="34" jump_velocity_y="-14" accel_x="0.4" velocity_min_x="-140" velocity_max_x="140" />
+		<HitboxComponent aabb_min_x="-8" aabb_max_x="8" aabb_min_y="-40" aabb_max_y="2" />
+		<CharacterDataComponent collision_aabb_min_x="-5" collision_aabb_max_x="5" collision_aabb_min_y="-36" collision_aabb_max_y="2" mass="6" climb_over_y="6" />
+		<CameraBoundComponent enabled="0" />
+	</Base>
+	<HotspotComponent _tags="shoot_pos" offset.x="10" offset.y="-26" />
+	<SpriteComponent _tags="health_bar_back,ui,no_hitbox" has_special_scale="1" image_file="data/ui_gfx/health_slider_back.png" offset_x="12" offset_y="-4" emissive="1" never_ragdollify_on_death="1" z_index="-9000" />
+	<SpriteComponent _tags="health_bar,ui,no_hitbox" has_special_scale="1" image_file="data/ui_gfx/health_slider_front.png" offset_x="11" offset_y="-4" emissive="1" never_ragdollify_on_death="1" z_index="-9000" />
+	<HealthBarComponent />
+	<BossHealthBarComponent />
+	<MusicEnergyAffectorComponent energy_target="1" />
+	<LightComponent radius="90" r="255" g="220" b="150" offset_y="-30" />
+	<SpriteComponent _tags="mahoraga_wheel,no_hitbox" image_file="mods/mahoraga/files/gfx/wheel.png" offset_x="12" offset_y="64" emissive="1" z_index="-1" update_transform_rotation="0" />
+	<VariableStorageComponent _tags="mahoraga_state" name="mahoraga_state" value_string="" />
+	<LuaComponent script_source_file="mods/mahoraga/files/scripts/boss_ai.lua" execute_every_n_frame="1" />
+	<LuaComponent script_damage_received="mods/mahoraga/files/scripts/boss_damage.lua" execute_every_n_frame="-1" />
+	<LuaComponent script_death="mods/mahoraga/files/scripts/boss_death.lua" execute_every_n_frame="-1" />
+	<AudioComponent file="data/audio/Desktop/animals.bank" event_root="animals/giant" />
+</Entity>

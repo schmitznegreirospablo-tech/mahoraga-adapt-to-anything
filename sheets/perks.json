@@ -1,0 +1,18 @@
+{
+  "sheet": "perks",
+  "columns": ["id", "ui_name", "ui_description", "ui_icon", "perk_icon", "stackable", "not_in_default_perk_pool", "usable_by_enemies", "adaptation_source", "on_pickup_message"],
+  "rows": [
+    {
+      "id": "MAHORAGA_ADAPTATION",
+      "ui_name": "Adapt to Anything",
+      "ui_description": "The Wheel turns for you. Each kind of harm you suffer teaches your body to endure it.",
+      "ui_icon": "mods/mahoraga/files/gfx/perk_ui.png",
+      "perk_icon": "mods/mahoraga/files/gfx/perk_item.png",
+      "stackable": false,
+      "not_in_default_perk_pool": true,
+      "usable_by_enemies": false,
+      "adaptation_source": "adaptation.player",
+      "on_pickup_message": "The Wheel of Mahoraga now turns above you."
+    }
+  ]
+}
