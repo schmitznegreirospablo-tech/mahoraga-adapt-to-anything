@@ -1,15 +1,15 @@
-Mahoraga: Adapt to Anything - a Noita mod (version 1.1.0)
+Mahoraga: Adapt to Anything - a Noita mod (version 1.2.0)
 
 Mahoraga, the Eight-Handled Wheel, waits in a temple arena carved into the edge wall
 at the far east of the world: cross the desert eastwards until you reach the great
 black wall; the arena doorway sits at ground level. Every parallel world has its own
 arena and its own Mahoraga, tougher the further out you go.
 
+- 8000 health, and hits hard: his weakest hit deals 200 damage, everything else in proportion.
 - He adapts to anything: take enough of one kind of damage and his wheel turns and he
   becomes immune to it. Drowning counts too: he needs air until he adapts to it.
-- Every adaptation heals him to full, raises his max health by 25% and makes all his
-  attacks hit 20% harder. Switch elements fast and finish him before the wheel turns again.
-- Fire burns in rapid ticks, so it now takes much longer to adapt to (for him and for you).
+- Every adaptation heals him to full and DOUBLES his max health and all his damage.
+- Fire burns in rapid ticks, so it takes much longer to adapt to (for him and for you).
 - Destructive attacks: Sword of Extermination slashes that cut through everything that
   isn't indestructible, Crushing Leap, Unstoppable Charge, and (below half health) Wheel Pulse.
 - New techniques the wheel teaches him:
@@ -18,9 +18,15 @@ arena and its own Mahoraga, tougher the further out you go.
   adapted to explosions  -> Giant Nuke: after a warning, an instant nuclear blast around him
   adapted to electricity -> Electrocute Giant Punch: an electric blast right in front of him
   adapted to holy power  -> Holy Shower: holy lances rain over a large area for a whole minute
-- Reward: the exclusive perk "Adapt to Anything". Each kind of harm you keep taking
-  hurts you 50% less, up to 3 times per type, now including drowning (you also hold
-  your breath longer).
+  adapted to slicing     -> World Cutting Slash: about 3 seconds of huge white cuts across the whole area
+- Rewards (take both): the perks
+  "Adapt to Anything": each kind of harm you keep taking hurts you 50% less, up to 3 times
+  per type, drowning included (you also hold your breath longer).
+  "Summon Mahoraga": press your summon key (default G, change it in Options > Mod settings)
+  to call your own Mahoraga, and press it again to dismiss him. He fights everything but you.
+  He is a copy of the boss: when called he takes every kind of harm you have adapted to
+  (with Adapt to Anything), with the same doubling of health and damage for each one and the
+  techniques they unlock, and he keeps taking your new adaptations while he is out.
 
 Single player. Fan-made boss inspired by Mahoraga from Jujutsu Kaisen by Gege Akutami;
 not affiliated with the series or with Nolla Games. All sprites were drawn for this mod.

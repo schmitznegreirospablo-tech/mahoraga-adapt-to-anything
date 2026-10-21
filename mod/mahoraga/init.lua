@@ -45,10 +45,42 @@ function mahoraga_spawn_boss( n )
 	return boss
 end
 
+-- Summon Mahoraga perk: the summon key calls your own Mahoraga next to you, or sends him away.
+function mahoraga_toggle_summon( player )
+	local px, py = EntityGetTransform( player )
+	local existing = EntityGetWithTag( "mahoraga_summon" ) or {}
+	if #existing > 0 then
+		for _, e in ipairs( existing ) do
+			local ex, ey = EntityGetTransform( e )
+			EntityLoad( "data/entities/particles/poof_white_appear.xml", ex, ey - 20 )
+			EntityKill( e )
+		end
+		GamePrint( "Mahoraga returns to the shadows." )
+		return
+	end
+	local _, _, _, sx = EntityGetTransform( player )
+	local x = px + ( ( sx ~= nil and sx < 0 ) and -30 or 30 )
+	local e = EntityLoad( "mods/mahoraga/files/entities/mahoraga_summon.xml", x, py )
+	-- as many adaptations (and the upgrades and techniques they bring) as the player has
+	local n = mh_summon_sync( e, player, "quiet" )
+	EntityLoad( "data/entities/particles/poof_white_appear.xml", x, py - 20 )
+	GamePlaySound( "data/audio/Desktop/event_cues.bank", "event_cues/orb_distant_monster/create", x, py )
+	local learned = {}
+	for _, id in ipairs( MAHORAGA_ATTACKS_ORDER ) do
+		local a = MAHORAGA_ATTACKS[ id ]
+		if a.unlock ~= "" and mh_get( e, "adapted_" .. a.unlock, 0 ) == 1 then table.insert( learned, a.name ) end
+	end
+	GamePrintImportant( "With this treasure, I summon...", "Mahoraga fights for you (" .. n .. " adaptations" .. ( #learned > 0 and ( ": " .. table.concat( learned, ", " ) ) or "" ) .. ")." )
+end
+
 function OnWorldPostUpdate()
 	local frame = GameGetFrameNum()
-	if frame % 15 ~= 0 then return end
 	local player = mh_player()
+	if player ~= nil and mh_get( player, "mahoraga_summoner", 0 ) == 1
+		and InputIsKeyJustDown( mahoraga_summon_key() ) and not GameIsInventoryOpen() then
+		mahoraga_toggle_summon( player )
+	end
+	if frame % 15 ~= 0 then return end
 	if player == nil then return end
 	local px, py = EntityGetTransform( player )
 	local n = mh_world_index( px )

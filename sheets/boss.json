@@ -23,16 +23,17 @@
                     "music_tag",
                     "herd_id",
                     "intro_message",
-                    "adapt_max_hp_bonus",
-                    "adapt_damage_bonus",
                     "air_in_lungs_max",
-                    "air_lack_of_damage"
+                    "air_lack_of_damage",
+                    "damage_scale",
+                    "adapt_hp_mult",
+                    "adapt_damage_mult"
                 ],
     "rows":  [
                  {
                      "id":  "mahoraga",
                      "name":  "Mahoraga, the Eight-Handled Wheel",
-                     "hp":  160,
+                     "hp":  320,
                      "hp_per_extra_world":  0.5,
                      "run_velocity":  34,
                      "jump_velocity_y":  -14,
@@ -48,15 +49,16 @@
                      "attack_think_frames":  20,
                      "contact_damage":  0.8,
                      "gold_drop":  2000,
-                     "reward_perk":  "MAHORAGA_ADAPTATION",
+                     "reward_perk":  "MAHORAGA_ADAPTATION,MAHORAGA_SUMMON",
                      "music_tag":  "music_energy_100_near",
                      "herd_id":  "boss_limbs",
                      "intro_message":  "With this treasure, I summon... The wheel begins to turn.",
-                     "adapt_max_hp_bonus":  0.25,
-                     "adapt_damage_bonus":  0.2,
                      "air_in_lungs_max":  5,
-                     "air_lack_of_damage":  0.6
+                     "air_lack_of_damage":  0.6,
+                     "damage_scale":  20,
+                     "adapt_hp_mult":  2,
+                     "adapt_damage_mult":  2
                  }
              ],
-    "notes":  "After every adaptation Mahoraga heals to full, his max HP grows by adapt_max_hp_bonus and all his attacks hit adapt_damage_bonus harder (added up per adaptation). He needs air (air_in_lungs_max seconds of it) until he adapts to drowning."
+    "notes":  "hp is in Noita units (25 HP each): 320 = 8000 HP. damage_scale multiplies every damage value in projectiles.json and contact_damage at runtime: the weakest hit (charge_blast, 0.4 = 10 HP) becomes 200 HP and every other attack keeps its proportion. Every adaptation heals him to full and multiplies max HP by adapt_hp_mult and all damage by adapt_damage_mult. He needs air until he adapts to drowning. reward_perk is a comma list of perks he drops."
 }

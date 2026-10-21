@@ -4,6 +4,7 @@ local me = GetUpdatedEntityID()
 local now = GameGetFrameNum()
 local x, y = EntityGetTransform( me )
 local B = MAHORAGA_BOSS.mahoraga
+local summon = mh_is_summon( me )   -- the Summon Mahoraga perk's ally: fights everything but the player
 
 -- Wheel turning animation after an adaptation (boss_damage.lua sets wheel_spin).
 do
@@ -22,7 +23,7 @@ local dmc = EntityGetFirstComponent( me, "DamageModelComponent" )
 local hp, max_hp = ComponentGetValue2( dmc, "hp" ), ComponentGetValue2( dmc, "max_hp" )
 local phase = 1
 if hp < max_hp * B.phase2_hp_frac then phase = 2 end
-if phase == 2 and mh_get( me, "phase2_announced", 0 ) == 0 then
+if phase == 2 and not summon and mh_get( me, "phase2_announced", 0 ) == 0 then
 	mh_set( me, "phase2_announced", 1 )
 	GamePrintImportant( "$animal_mahoraga", "The wheel spins faster..." )
 	GamePlaySound( "data/audio/Desktop/event_cues.bank", "event_cues/angered_the_gods/create", x, y )
@@ -32,6 +33,25 @@ local player = mh_player()
 if player == nil then return end
 local px, py = EntityGetTransform( player )
 py = py - 6
+
+-- Your Mahoraga aims at the nearest enemy instead, keeps up with you and takes your adaptations.
+if summon then
+	if now % 30 == 0 then mh_summon_sync( me, player, "summon" ) end
+	local target = mh_summon_target( me, x, y, 450 )
+	if target ~= nil then
+		px, py = EntityGetTransform( target )
+		py = py - 6
+	elseif mh_get( me, "attack", 0 ) ~= 0 then
+		px, py = mh_get( me, "aim_x", px ), mh_get( me, "aim_y", py )
+	else
+		if ( px - x ) ^ 2 + ( py - y ) ^ 2 > 260 * 260 then
+			EntityLoad( "data/entities/particles/poof_white_appear.xml", x, y - 20 )
+			EntitySetTransform( me, px - 30, py )
+			EntityLoad( "data/entities/particles/poof_white_appear.xml", px - 30, py - 20 )
+		end
+		return
+	end
+end
 
 local ai = EntityGetFirstComponentIncludingDisabled( me, "AnimalAIComponent" )
 local cdc = EntityGetFirstComponent( me, "CharacterDataComponent" )
@@ -44,9 +64,25 @@ local function shoot( pid, sx, sy, vx, vy )
 	local p = MAHORAGA_PROJECTILES[ pid ]
 	local e = shoot_projectile( me, p.file, sx, sy, vx, vy )
 	mh_scale_projectile( e, power )
+	if summon and e ~= nil then
+		local pc = EntityGetFirstComponentIncludingDisabled( e, "ProjectileComponent" )
+		if pc ~= nil then ComponentSetValue2( pc, "never_hit_player", true ) end
+	end
 	return e
 end
 local function unlocked( a ) return a.unlock == "" or mh_get( me, "adapted_" .. a.unlock, 0 ) == 1 end
+-- Your Mahoraga holds back a big blast (Giant Nuke, Napalm, Crushing Leap...) while the player is inside it.
+local function safe_for_player( a )
+	if not summon then return true end
+	local p = MAHORAGA_PROJECTILES[ a.behavior == "leap_then_blast" and "slam_blast" or a.projectile ]
+	if p.explosion_radius < 40 then return true end
+	local bx, by = px, py
+	if a.behavior == "blast_at_self" then bx, by = x, y - 20 end
+	local ppx, ppy = EntityGetTransform( player )
+	local r = p.explosion_radius + 30
+	if string.find( p.load_entities, "circle_fire", 1, true ) then r = math.max( r, 160 ) end   -- Napalm's fire circle
+	return ( ppx - bx ) ^ 2 + ( ppy - by ) ^ 2 > r * r
+end
 
 -- Holy Shower keeps falling for its whole duration, alongside his other attacks.
 do
@@ -83,7 +119,7 @@ local function start_attack( pick )
 	set_ai( false )
 	face( px )
 	GamePlayAnimation( me, "attack", 10 )
-	if a.warning ~= "" then GamePrint( a.warning ) end
+	if a.warning ~= "" and not summon then GamePrint( a.warning ) end
 end
 
 if cur == 0 then
@@ -94,7 +130,7 @@ if cur == 0 then
 	local choices = {}
 	for i, id in ipairs( MAHORAGA_ATTACKS_ORDER ) do
 		local a = MAHORAGA_ATTACKS[ id ]
-		if a.phase <= phase and unlocked( a ) and dist >= a.range_min and dist <= a.range_max and now >= mh_get( me, "ready_" .. id, 0 ) then
+		if a.phase <= phase and unlocked( a ) and safe_for_player( a ) and dist >= a.range_min and dist <= a.range_max and now >= mh_get( me, "ready_" .. id, 0 ) then
 			table.insert( choices, i )
 		end
 	end
@@ -201,7 +237,7 @@ elseif a.behavior == "blast_at_self" then
 		if p.damage_type ~= "explosion" and p.damage > 0 then
 			local dtype = "DAMAGE_" .. string.upper( p.damage_type )
 			for _, e in ipairs( EntityGetInRadiusWithTag( bx, by, p.explosion_radius, "mortal" ) or {} ) do
-				if e ~= me then
+				if e ~= me and not ( summon and ( e == player or EntityHasTag( e, "mahoraga_summon" ) ) ) then
 					EntityInflictDamage( e, p.damage * power, dtype, MAHORAGA_ADAPT[ p.damage_type ].message_key, "NORMAL", dir * 40, -30, me )
 					if p.damage_type == "electricity" then LoadGameEffectEntityTo( e, "data/entities/misc/effect_electricity.xml" ) end
 				end
@@ -210,6 +246,23 @@ elseif a.behavior == "blast_at_self" then
 		GameScreenshake( math.min( 100, p.explosion_radius ), bx, by )
 	end
 	if at > 20 then finish() end
+
+elseif a.behavior == "cut_storm" then
+	-- World Cutting Slash: waves of huge white cuts crossing the area around the target at random angles
+	if at % a.repeat_gap_frames == 0 and at < a.repeats * a.repeat_gap_frames then
+		sound( a )
+		local p = MAHORAGA_PROJECTILES[ a.projectile ]
+		local reach = p.speed * p.lifetime / 60
+		SetRandomSeed( now + me, x - at )
+		for i = 1, a.count do
+			local cx, cy = ax + Random( -a.area, a.area ), ay + Random( -a.area, a.area ) * 0.6
+			local ang = Random( 0, 359 ) * math.pi / 180
+			local dx, dy = math.cos( ang ), math.sin( ang )
+			shoot( a.projectile, cx - dx * reach * 0.5, cy - dy * reach * 0.5, dx * p.speed, dy * p.speed )
+		end
+		GameScreenshake( 25, ax, ay )
+	end
+	if at >= a.repeats * a.repeat_gap_frames then finish() end
 
 elseif a.behavior == "rain" then
 	if at == 0 then

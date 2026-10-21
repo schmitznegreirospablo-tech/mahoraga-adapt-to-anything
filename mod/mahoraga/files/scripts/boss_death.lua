@@ -9,7 +9,12 @@ function death( damage_type_bit_field, damage_message, entity_thats_responsible,
 
 	local left, top, right, bottom = mh_arena_rect( n )
 	local rx, ry = ( left + right ) * 0.5, bottom - 20
-	perk_spawn( rx, ry, MAHORAGA_BOSS.mahoraga.reward_perk, true )
+	-- every reward perk side by side; taking one leaves the others (reward_perk is a comma list)
+	local perks = {}
+	for id in string.gmatch( MAHORAGA_BOSS.mahoraga.reward_perk, "[^,]+" ) do table.insert( perks, id ) end
+	for i, id in ipairs( perks ) do
+		perk_spawn( rx + ( i - ( #perks + 1 ) * 0.5 ) * 30, ry, id, true )
+	end
 
 	local gold = MAHORAGA_BOSS.mahoraga.gold_drop
 	for i = 1, math.floor( gold / 200 ) do

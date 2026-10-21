@@ -62,9 +62,78 @@ function mh_damage_type( message, projectile_id )
 	return nil
 end
 
--- How much harder Mahoraga hits: every adaptation adds adapt_damage_bonus.
+-- How hard Mahoraga hits: every damage value in the sheets x damage_scale, doubled (adapt_damage_mult) per adaptation.
 function mh_power( boss )
-	return 1 + mh_get( boss, "adapt_count", 0 ) * MAHORAGA_BOSS.mahoraga.adapt_damage_bonus
+	local B = MAHORAGA_BOSS.mahoraga
+	return B.damage_scale * B.adapt_damage_mult ^ mh_get( boss, "adapt_count", 0 )
+end
+
+function mh_is_summon( e ) return mh_get( e, "summon", 0 ) == 1 end
+
+-- The wheel turns: immune to type t from now on, fully healed, max HP and all damage doubled.
+-- how: "boss" (his fight messages), "summon" (your Mahoraga, announced) or "quiet".
+function mh_apply_adaptation( me, t, how )
+	local row = MAHORAGA_ADAPT[ t ]
+	local B = MAHORAGA_BOSS.mahoraga
+	local dmc = EntityGetFirstComponent( me, "DamageModelComponent" )
+	if dmc == nil or mh_get( me, "adapted_" .. t, 0 ) == 1 then return end
+	local count = mh_get( me, "adapt_count", 0 ) + 1
+	mh_set( me, "adapted_" .. t, 1 )
+	mh_set( me, "adapt_count", count )
+	mh_set( me, "wheel_spin", GameGetFrameNum() )
+	if t == "drowning" then
+		ComponentSetValue2( dmc, "air_needed", false )
+	else
+		ComponentObjectSetValue2( dmc, "damage_multipliers", row.field, row.boss_result_mult )
+	end
+	local new_max = ComponentGetValue2( dmc, "max_hp" ) * B.adapt_hp_mult
+	ComponentSetValue2( dmc, "max_hp", new_max )
+	ComponentSetValue2( dmc, "hp", new_max )
+	local ai = EntityGetFirstComponentIncludingDisabled( me, "AnimalAIComponent" )
+	if ai ~= nil then
+		ComponentSetValue2( ai, "attack_melee_damage_min", B.contact_damage * mh_power( me ) )
+		ComponentSetValue2( ai, "attack_melee_damage_max", B.contact_damage * mh_power( me ) )
+	end
+	if how == "quiet" then return end
+
+	local x, y = EntityGetTransform( me )
+	GamePlaySound( "data/audio/Desktop/animals.bank", "animals/statue/appear", x, y )
+	EntityLoad( "data/entities/particles/heal_effect.xml", x, y - 20 )
+	local mult = math.floor( B.adapt_damage_mult ^ count + 0.5 )
+	local who = ( how == "summon" ) and "Your Mahoraga" or "Mahoraga"
+	GamePrint( who .. "'s wheel turns: adapted to " .. row.display_name .. "! Fully healed, health and damage doubled (x" .. mult .. ")." )
+	for _, id in ipairs( MAHORAGA_ATTACKS_ORDER ) do
+		local a = MAHORAGA_ATTACKS[ id ]
+		if a.unlock == t then
+			GamePrintImportant( who .. " learns " .. a.name, "Adapted to " .. row.display_name .. ", the wheel grants a new technique." )
+		end
+	end
+end
+
+-- Your Mahoraga takes every adaptation the player has (Adapt to Anything: each kind of harm with at least
+-- one step), with the same doubling and the techniques they unlock. Returns how many it gained.
+function mh_summon_sync( summon, player, how )
+	local gained = 0
+	for _, t in ipairs( MAHORAGA_ADAPT_ORDER ) do
+		if mh_get( player, "padapt_steps_" .. t, 0 ) >= 1 and mh_get( summon, "adapted_" .. t, 0 ) == 0 then
+			mh_apply_adaptation( summon, t, how )
+			gained = gained + 1
+		end
+	end
+	return gained
+end
+
+-- Nearest living enemy your Mahoraga can reach.
+function mh_summon_target( me, x, y, range )
+	local best, best_d = nil, range * range
+	for _, e in ipairs( EntityGetInRadiusWithTag( x, y, range, "enemy" ) or {} ) do
+		if e ~= me and EntityGetIsAlive( e ) and not EntityHasTag( e, "mahoraga_summon" ) then
+			local ex, ey = EntityGetTransform( e )
+			local d = ( ex - x ) ^ 2 + ( ey - y ) ^ 2
+			if d < best_d then best, best_d = e, d end
+		end
+	end
+	return best
 end
 
 -- Scale every kind of damage a freshly shot projectile deals.
@@ -109,3 +178,20 @@ function mh_player()
 	return nil
 end
 
+
+-- Summon key, chosen in Options > Mod settings (settings.lua); default G.
+MAHORAGA_KEY_NAMES = {
+	[4]="A",[5]="B",[6]="C",[7]="D",[8]="E",[9]="F",[10]="G",[11]="H",[12]="I",[13]="J",[14]="K",[15]="L",[16]="M",
+	[17]="N",[18]="O",[19]="P",[20]="Q",[21]="R",[22]="S",[23]="T",[24]="U",[25]="V",[26]="W",[27]="X",[28]="Y",[29]="Z",
+	[30]="1",[31]="2",[32]="3",[33]="4",[34]="5",[35]="6",[36]="7",[37]="8",[38]="9",[39]="0",
+	[58]="F1",[59]="F2",[60]="F3",[61]="F4",[62]="F5",[63]="F6",[64]="F7",[65]="F8",[66]="F9",[67]="F10",[68]="F11",[69]="F12",
+}
+function mahoraga_summon_key()
+	local v = tonumber( ModSettingGet( "mahoraga.summon_key" ) )
+	if v == nil then return 10 end
+	return math.floor( v )
+end
+function mahoraga_summon_key_name()
+	local k = mahoraga_summon_key()
+	return MAHORAGA_KEY_NAMES[ k ] or ( "key " .. tostring( k ) )
+end

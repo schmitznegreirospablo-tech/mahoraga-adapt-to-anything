@@ -16,3 +16,19 @@ table.insert( perk_list, {
 		mahoraga_remove_player_adaptation( entity_who_picked )
 	end,
 } )
+table.insert( perk_list, {
+	id = "MAHORAGA_SUMMON",
+	ui_name = "$perk_mahoraga_summon",
+	ui_description = "$perkdesc_mahoraga_summon",
+	ui_icon = "mods/mahoraga/files/gfx/summon_ui.png",
+	perk_icon = "mods/mahoraga/files/gfx/summon_item.png",
+	stackable = false,
+	not_in_default_perk_pool = true,
+	usable_by_enemies = false,
+	func = function( entity_perk_item, entity_who_picked, item_name )
+		mahoraga_give_summon( entity_who_picked, "The Eight-Handled Wheel will answer your call." )
+	end,
+	func_remove = function( entity_who_picked )
+		mahoraga_remove_summon( entity_who_picked )
+	end,
+} )

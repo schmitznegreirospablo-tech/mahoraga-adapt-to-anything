@@ -1,18 +1,47 @@
-{
-  "sheet": "perks",
-  "columns": ["id", "ui_name", "ui_description", "ui_icon", "perk_icon", "stackable", "not_in_default_perk_pool", "usable_by_enemies", "adaptation_source", "on_pickup_message"],
-  "rows": [
-    {
-      "id": "MAHORAGA_ADAPTATION",
-      "ui_name": "Adapt to Anything",
-      "ui_description": "The Wheel turns for you. Each kind of harm you suffer teaches your body to endure it.",
-      "ui_icon": "mods/mahoraga/files/gfx/perk_ui.png",
-      "perk_icon": "mods/mahoraga/files/gfx/perk_item.png",
-      "stackable": false,
-      "not_in_default_perk_pool": true,
-      "usable_by_enemies": false,
-      "adaptation_source": "adaptation.player",
-      "on_pickup_message": "The Wheel of Mahoraga now turns above you."
-    }
-  ]
+﻿{
+    "sheet":  "perks",
+    "columns":  [
+                    "id",
+                    "ui_name",
+                    "ui_description",
+                    "ui_icon",
+                    "perk_icon",
+                    "stackable",
+                    "not_in_default_perk_pool",
+                    "usable_by_enemies",
+                    "adaptation_source",
+                    "on_pickup_message",
+                    "on_pickup_func",
+                    "on_remove_func"
+                ],
+    "rows":  [
+                 {
+                     "id":  "MAHORAGA_ADAPTATION",
+                     "ui_name":  "Adapt to Anything",
+                     "ui_description":  "The Wheel turns for you. Each kind of harm you suffer teaches your body to endure it.",
+                     "ui_icon":  "mods/mahoraga/files/gfx/perk_ui.png",
+                     "perk_icon":  "mods/mahoraga/files/gfx/perk_item.png",
+                     "stackable":  false,
+                     "not_in_default_perk_pool":  true,
+                     "usable_by_enemies":  false,
+                     "adaptation_source":  "adaptation.player",
+                     "on_pickup_message":  "The Wheel of Mahoraga now turns above you.",
+                     "on_pickup_func":  "mahoraga_give_player_adaptation",
+                     "on_remove_func":  "mahoraga_remove_player_adaptation"
+                 },
+                 {
+                     "id":  "MAHORAGA_SUMMON",
+                     "ui_name":  "Summon Mahoraga",
+                     "ui_description":  "Press your summon key (Mod settings) to call your own Mahoraga, or to dismiss him. He fights everything but you, shares your adaptations and the techniques they unlock.",
+                     "ui_icon":  "mods/mahoraga/files/gfx/summon_ui.png",
+                     "perk_icon":  "mods/mahoraga/files/gfx/summon_item.png",
+                     "stackable":  false,
+                     "not_in_default_perk_pool":  true,
+                     "usable_by_enemies":  false,
+                     "adaptation_source":  "adaptation.player",
+                     "on_pickup_message":  "The Eight-Handled Wheel will answer your call.",
+                     "on_pickup_func":  "mahoraga_give_summon",
+                     "on_remove_func":  "mahoraga_remove_summon"
+                 }
+             ]
 }

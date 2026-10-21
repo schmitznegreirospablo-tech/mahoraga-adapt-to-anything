@@ -32,3 +32,16 @@ function mahoraga_remove_player_adaptation( player )
 		if EntityGetName( child ) == "mahoraga_player_wheel" then EntityKill( child ) end
 	end
 end
+
+-- Summon Mahoraga: the player can call and dismiss their own Mahoraga with the key from Mod settings (init.lua).
+function mahoraga_give_summon( player, message )
+	mh_set( player, "mahoraga_summoner", 1 )
+	GamePrint( message )
+	local key = mahoraga_summon_key_name ~= nil and mahoraga_summon_key_name() or "your summon key"
+	GamePrint( "Press " .. key .. " to call or dismiss Mahoraga (change it in Options > Mod settings)." )
+end
+
+function mahoraga_remove_summon( player )
+	mh_set( player, "mahoraga_summoner", 0 )
+	for _, e in ipairs( EntityGetWithTag( "mahoraga_summon" ) or {} ) do EntityKill( e ) end
+end

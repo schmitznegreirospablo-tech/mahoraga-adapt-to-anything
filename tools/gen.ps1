@@ -30,9 +30,9 @@ foreach ($n in $S.Keys) { foreach ($row in $S[$n].rows) { foreach ($col in $S[$n
 $projIds = $S.projectiles.rows | ForEach-Object { $_.id }
 foreach ($a in $S.attacks.rows) { if ($projIds -notcontains $a.projectile) { $problems.Add("attacks/$($a.id): projectile '$($a.projectile)' not in projectiles") } }
 $perkIds = $S.perks.rows | ForEach-Object { $_.id }
-foreach ($b in $S.boss.rows) { if ($perkIds -notcontains $b.reward_perk) { $problems.Add("boss/$($b.id): reward_perk '$($b.reward_perk)' not in perks") } }
+foreach ($b in $S.boss.rows) { foreach ($rp in ($b.reward_perk -split ',')) { if ($perkIds -notcontains $rp) { $problems.Add("boss/$($b.id): reward_perk '$rp' not in perks") } } }
 foreach ($p in $S.perks.rows) { if ($p.adaptation_source -ne 'adaptation.player') { $problems.Add("perks/$($p.id): adaptation_source must be adaptation.player") } }
-$behaviors = 'fan_at_target','leap_then_blast','dash_digging','ring','lob_at_target','blast_at_self','rain'
+$behaviors = 'fan_at_target','leap_then_blast','dash_digging','ring','lob_at_target','blast_at_self','rain','cut_storm'
 foreach ($a in $S.attacks.rows) { if ($behaviors -notcontains $a.behavior) { $problems.Add("attacks/$($a.id): behavior '$($a.behavior)' has no implementation") } }
 $fields = 'melee','projectile','explosion','electricity','fire','drill','slice','ice','healing','physics_hit','radioactive','poison','overeating','curse','holy','drowning'
 $adaptTypes = $S.adaptation.rows | ForEach-Object { $_.type }
@@ -102,10 +102,10 @@ table.insert( perk_list, {
 	not_in_default_perk_pool = $(LuaVal $p.not_in_default_perk_pool),
 	usable_by_enemies = $(LuaVal $p.usable_by_enemies),
 	func = function( entity_perk_item, entity_who_picked, item_name )
-		mahoraga_give_player_adaptation( entity_who_picked, $(LuaVal $p.on_pickup_message) )
+		$($p.on_pickup_func)( entity_who_picked, $(LuaVal $p.on_pickup_message) )
 	end,
 	func_remove = function( entity_who_picked )
-		mahoraga_remove_player_adaptation( entity_who_picked )
+		$($p.on_remove_func)( entity_who_picked )
 	end,
 } )
 "@
@@ -117,6 +117,7 @@ Write-Out (Join-Path $mod 'files\scripts\perk_append.lua') ($pl -join "`n")
 $tr = @()
 $b0 = $S.boss.rows[0]
 $tr += "animal_mahoraga,`"$($b0.name)`",,,,,,,,,,,,,"
+$tr += "animal_mahoraga_summon,`"$($b0.name) (summoned)`",,,,,,,,,,,,,"
 foreach ($p in $S.perks.rows) {
   $tr += "perk_$($p.id.ToLower()),`"$($p.ui_name)`",,,,,,,,,,,,,"
   $tr += "perkdesc_$($p.id.ToLower()),`"$($p.ui_description)`",,,,,,,,,,,,,"
@@ -131,7 +132,7 @@ foreach ($p in $S.projectiles.rows) {
   $baseDmg = if ($p.damage_type -eq 'projectile') { $p.damage } else { 0 }
   $scale = if ($p.sprite_scale -ne 1) { " has_special_scale=`"1`" special_scale_x=`"$($p.sprite_scale)`" special_scale_y=`"$($p.sprite_scale)`"" } else { '' }
   $sprite = if ($p.sprite) { @"
-	<SpriteComponent image_file="$($p.sprite)" offset_x="$($p.sprite_offset)" offset_y="$($p.sprite_offset)" additive="$($p.additive)" emissive="$($p.additive)" update_transform_rotation="1"$scale />
+	<SpriteComponent image_file="$($p.sprite)" offset_x="$($p.sprite_offset)" offset_y="$($p.sprite_offset_y)" additive="$($p.additive)" emissive="$($p.additive)" update_transform_rotation="1"$scale />
 "@ } else { '' }
   $dig = if ($p.cell_eater_radius -gt 0) { "	<CellEaterComponent radius=`"$($p.cell_eater_radius)`" eat_dynamic_physics_bodies=`"1`" ignored_material_tag=`"[indestructible]`" />" } else { '' }
   $loadEnt = if ($p.load_entities) { "`n			load_this_entity=`"$($p.load_entities)`"" } else { '' }
@@ -224,8 +225,8 @@ $bx = @"
 			sense_creatures="1"
 			attack_ranged_enabled="0"
 			attack_melee_enabled="1"
-			attack_melee_damage_min="$($b.contact_damage)"
-			attack_melee_damage_max="$($b.contact_damage)"
+			attack_melee_damage_min="$($b.contact_damage * $b.damage_scale)"
+			attack_melee_damage_max="$($b.contact_damage * $b.damage_scale)"
 			attack_melee_max_distance="22"
 			attack_melee_frames_between="40"
 			can_fly="0"
@@ -272,6 +273,16 @@ $bx = @"
 </Entity>
 "@
 Write-Out (Join-Path $ent 'mahoraga.xml') $bx
+$sx2 = $bx -replace '<!-- GENERATED from sheets/boss.json row ''([^'']+)'' by tools/gen.ps1 -->', '<!-- GENERATED from sheets/boss.json row ''$1'' by tools/gen.ps1: the Summon Mahoraga perk''s ally -->'
+$sx2 = $sx2 -replace 'name="\$animal_mahoraga" tags="[^"]*"', 'name="$animal_mahoraga_summon" tags="mortal,hittable,teleportable_NOT,polymorphable_NOT,necrobot_NOT,glue_NOT,touchmagic_immunity,mahoraga_summon"'
+$sx2 = $sx2 -replace '\s*<ItemChestComponent level="5" />', ''
+$sx2 = $sx2 -replace 'herd_id="[^"]*"', 'herd_id="player"'
+$sx2 = $sx2 -replace '\s*<BossHealthBarComponent />', ''
+$sx2 = $sx2 -replace '\s*<MusicEnergyAffectorComponent[^>]*/>', ''
+$sx2 = $sx2 -replace '\s*<LuaComponent script_death="[^"]*" execute_every_n_frame="-1" />', ''
+$sx2 = $sx2.Replace('<VariableStorageComponent _tags="mahoraga_state"', '<VariableStorageComponent name="summon" value_float="1" />
+	<VariableStorageComponent _tags="mahoraga_state"')
+Write-Out (Join-Path $ent 'mahoraga_summon.xml') $sx2
 "GENERATED: boss, $($S.attacks.rows.Count) attacks, $($S.projectiles.rows.Count) projectiles, $($S.adaptation.rows.Count) adaptation types, $($S.perks.rows.Count) perk(s), world"
 
 
