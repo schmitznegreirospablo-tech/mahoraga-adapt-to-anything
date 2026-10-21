@@ -3,7 +3,7 @@
 A Mahoraga-inspired boss (8000 HP) waits in a temple arena at the far east edge of every Noita world. He adapts to every kind of harm (even drowning). Each adaptation heals him to full and doubles his health and damage, and some of them teach him new techniques: Giant Slash, Giant Napalm, Giant Nuke, Electrocute Giant Punch, Holy Shower and World Cutting Slash. Beat him for two perks: **Adapt to Anything**, and **Summon Mahoraga**, which calls your own Mahoraga (sharing your adaptations) with a key you pick in Options > Mod settings.
 
 - Steam Workshop: https://steamcommunity.com/sharedfiles/filedetails/?id=3820434703
-- Current version: 1.2.0
+- Current version: 1.2.1
 
 ## Layout
 | Folder | What it is |

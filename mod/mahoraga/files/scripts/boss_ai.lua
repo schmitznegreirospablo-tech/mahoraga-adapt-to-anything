@@ -66,22 +66,35 @@ local function shoot( pid, sx, sy, vx, vy )
 	mh_scale_projectile( e, power )
 	if summon and e ~= nil then
 		local pc = EntityGetFirstComponentIncludingDisabled( e, "ProjectileComponent" )
-		if pc ~= nil then ComponentSetValue2( pc, "never_hit_player", true ) end
+		if pc ~= nil then
+			ComponentSetValue2( pc, "never_hit_player", true )
+			-- explosions ignore herds and would hurt the player: the blast keeps its look and digging,
+			-- and summon_blast.lua deals its damage to everyone else when the projectile ends
+			local dmg = ComponentObjectGetValue2( pc, "config_explosion", "damage" ) or 0
+			if dmg > 0 then
+				ComponentObjectSetValue2( pc, "config_explosion", "damage", 0 )
+				mh_set( e, "blast_damage", dmg )
+				mh_set( e, "blast_radius", ComponentObjectGetValue2( pc, "config_explosion", "explosion_radius" ) or 0 )
+				mh_set( e, "blast_owner", me )
+				EntityAddComponent2( e, "LuaComponent", {
+					script_source_file = "mods/mahoraga/files/scripts/summon_blast.lua",
+					execute_every_n_frame = -1,
+					execute_on_removed = true,
+				} )
+			end
+		end
 	end
 	return e
 end
 local function unlocked( a ) return a.unlock == "" or mh_get( me, "adapted_" .. a.unlock, 0 ) == 1 end
--- Your Mahoraga holds back a big blast (Giant Nuke, Napalm, Crushing Leap...) while the player is inside it.
+-- Your Mahoraga's blasts can't hurt the player (summon_blast.lua), but fire burns anyone:
+-- he holds back Giant Napalm while the player is inside its fire circle.
 local function safe_for_player( a )
 	if not summon then return true end
-	local p = MAHORAGA_PROJECTILES[ a.behavior == "leap_then_blast" and "slam_blast" or a.projectile ]
-	if p.explosion_radius < 40 then return true end
-	local bx, by = px, py
-	if a.behavior == "blast_at_self" then bx, by = x, y - 20 end
+	local p = MAHORAGA_PROJECTILES[ a.projectile ]
+	if not string.find( p.load_entities, "circle_fire", 1, true ) then return true end
 	local ppx, ppy = EntityGetTransform( player )
-	local r = p.explosion_radius + 30
-	if string.find( p.load_entities, "circle_fire", 1, true ) then r = math.max( r, 160 ) end   -- Napalm's fire circle
-	return ( ppx - bx ) ^ 2 + ( ppy - by ) ^ 2 > r * r
+	return ( ppx - px ) ^ 2 + ( ppy - py ) ^ 2 > 160 * 160
 end
 
 -- Holy Shower keeps falling for its whole duration, alongside his other attacks.

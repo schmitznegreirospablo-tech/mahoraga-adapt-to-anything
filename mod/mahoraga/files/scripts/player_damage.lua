@@ -22,9 +22,15 @@ function damage_received( damage, message, entity_thats_responsible, is_fatal, p
 	end
 	mh_set( me, "padapt_hits_" .. t, 0 )
 	mh_set( me, "padapt_steps_" .. t, steps + 1 )
+	-- the last step (player_max_steps) adapts the player completely: immune, like Mahoraga
+	local full = ( steps + 1 ) >= row.player_max_steps
 	local dmc = EntityGetFirstComponent( me, "DamageModelComponent" )
 	if dmc ~= nil then
-		if t == "drowning" then
+		if full and t == "drowning" then
+			ComponentSetValue2( dmc, "air_needed", false )
+		elseif full then
+			ComponentObjectSetValue2( dmc, "damage_multipliers", row.field, 0 )
+		elseif t == "drowning" then
 			-- less harm when out of air, and the lungs hold more of it
 			ComponentSetValue2( dmc, "air_lack_of_damage", ComponentGetValue2( dmc, "air_lack_of_damage" ) * row.player_step_mult )
 			local lungs = ComponentGetValue2( dmc, "air_in_lungs_max" ) / row.player_step_mult
@@ -41,6 +47,10 @@ function damage_received( damage, message, entity_thats_responsible, is_fatal, p
 	end
 	local x, y = EntityGetTransform( me )
 	GamePlaySound( "data/audio/Desktop/animals.bank", "animals/statue/appear", x, y )
-	local pct = math.floor( 100 * ( 1 - row.player_step_mult ^ ( steps + 1 ) ) + 0.5 )
-	GamePrint( "The wheel turns: you have adapted to " .. row.display_name .. " (" .. pct .. "% less harm)" )
+	if full then
+		GamePrintImportant( "The wheel turns", "You have fully adapted to " .. row.display_name .. ": it can no longer harm you." )
+	else
+		local pct = math.floor( 100 * ( 1 - row.player_step_mult ^ ( steps + 1 ) ) + 0.5 )
+		GamePrint( "The wheel turns: you have adapted to " .. row.display_name .. " (" .. pct .. "% less harm)" )
+	end
 end
