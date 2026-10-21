@@ -1,6 +1,30 @@
 dofile_once("mods/mahoraga/files/scripts/common.lua")
 
--- Adapt to Anything: each kind of harm the player keeps suffering hurts less, in steps.
+-- Adapt to Anything: each kind of harm the player keeps suffering hurts less, in steps,
+-- and every new kind adapted to makes the player stronger.
+
+-- +50% max HP (healing the added part) and +50% damage on every shot, compounding (x1.5, x2.25, x3.375...).
+function mahoraga_player_power_up( me )
+	local mult = MAHORAGA_BOSS.mahoraga.player_adapt_power_mult
+	local power = mh_get( me, "padapt_power", 1 ) * mult
+	mh_set( me, "padapt_power", power )
+	local dmc = EntityGetFirstComponent( me, "DamageModelComponent" )
+	if dmc ~= nil then
+		local max_hp, hp = ComponentGetValue2( dmc, "max_hp" ), ComponentGetValue2( dmc, "hp" )
+		ComponentSetValue2( dmc, "max_hp", max_hp * mult )
+		ComponentSetValue2( dmc, "hp", hp + max_hp * ( mult - 1 ) )
+	end
+	-- player_shot.lua scales every projectile the player fires (removed with the perk)
+	if EntityGetFirstComponentIncludingDisabled( me, "LuaComponent", "mahoraga_power" ) == nil then
+		EntityAddComponent2( me, "LuaComponent", {
+			_tags = "mahoraga_adaptation,mahoraga_power,perk_component",
+			script_shot = "mods/mahoraga/files/scripts/player_shot.lua",
+			execute_every_n_frame = -1,
+		} )
+	end
+	GamePrint( string.format( "Your power grows: x%.2f health and damage.", power ) )
+end
+
 function damage_received( damage, message, entity_thats_responsible, is_fatal, projectile_thats_responsible )
 	if damage <= 0 then return end
 	local me = GetUpdatedEntityID()
@@ -22,6 +46,7 @@ function damage_received( damage, message, entity_thats_responsible, is_fatal, p
 	end
 	mh_set( me, "padapt_hits_" .. t, 0 )
 	mh_set( me, "padapt_steps_" .. t, steps + 1 )
+	if steps == 0 then mahoraga_player_power_up( me ) end
 	-- the last step (player_max_steps) adapts the player completely: immune, like Mahoraga
 	local full = ( steps + 1 ) >= row.player_max_steps
 	local dmc = EntityGetFirstComponent( me, "DamageModelComponent" )

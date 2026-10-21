@@ -1,4 +1,4 @@
-Mahoraga: Adapt to Anything - a Noita mod (version 1.2.1)
+Mahoraga: Adapt to Anything - a Noita mod (version 1.2.2)
 
 Mahoraga, the Eight-Handled Wheel, waits in a temple arena carved into the edge wall
 at the far east of the world: cross the desert eastwards until you reach the great
@@ -22,7 +22,9 @@ arena and its own Mahoraga, tougher the further out you go.
 - Rewards (take both): the perks
   "Adapt to Anything": each kind of harm you keep taking hurts you less: 50%, then 75%, and
   at the third step you are fully adapted and it can no longer harm you. Drowning included
-  (you hold your breath longer, then no longer need air).
+  (you hold your breath longer, then no longer need air). Every NEW kind of harm you adapt
+  to also makes you stronger: +50% max health and +50% damage on everything you shoot,
+  compounding (x1.5, x2.25, x3.38...).
   "Summon Mahoraga": press your summon key (default G, change it in Options > Mod settings)
   to call your own Mahoraga, and press it again to dismiss him. He fights everything but you,
   and his explosions can't hurt you.

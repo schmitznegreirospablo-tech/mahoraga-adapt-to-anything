@@ -27,7 +27,8 @@
                     "air_lack_of_damage",
                     "damage_scale",
                     "adapt_hp_mult",
-                    "adapt_damage_mult"
+                    "adapt_damage_mult",
+                    "player_adapt_power_mult"
                 ],
     "rows":  [
                  {
@@ -57,8 +58,9 @@
                      "air_lack_of_damage":  0.6,
                      "damage_scale":  20,
                      "adapt_hp_mult":  2,
-                     "adapt_damage_mult":  2
+                     "adapt_damage_mult":  2,
+                     "player_adapt_power_mult":  1.5
                  }
              ],
-    "notes":  "hp is in Noita units (25 HP each): 320 = 8000 HP. damage_scale multiplies every damage value in projectiles.json and contact_damage at runtime: the weakest hit (charge_blast, 0.4 = 10 HP) becomes 200 HP and every other attack keeps its proportion. Every adaptation heals him to full and multiplies max HP by adapt_hp_mult and all damage by adapt_damage_mult. He needs air until he adapts to drowning. reward_perk is a comma list of perks he drops."
+    "notes":  "hp is in Noita units (25 HP each): 320 = 8000 HP. damage_scale multiplies every damage value in projectiles.json and contact_damage at runtime: the weakest hit (charge_blast, 0.4 = 10 HP) becomes 200 HP and every other attack keeps its proportion. Every adaptation heals him to full and multiplies max HP by adapt_hp_mult and all damage by adapt_damage_mult. He needs air until he adapts to drowning. reward_perk is a comma list of perks he drops. player_adapt_power_mult: with Adapt to Anything, each new kind of harm the player adapts to multiplies their max HP and all their projectile damage by this (compounding)."
 }
