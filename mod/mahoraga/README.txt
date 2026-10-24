@@ -1,4 +1,4 @@
-Mahoraga: Adapt to Anything - a Noita mod (version 1.2.2)
+Mahoraga: Adapt to Anything - a Noita mod (version 1.2.3)
 
 Mahoraga, the Eight-Handled Wheel, waits in a temple arena carved into the edge wall
 at the far east of the world: cross the desert eastwards until you reach the great
@@ -33,7 +33,7 @@ arena and its own Mahoraga, tougher the further out you go.
   techniques they unlock, and he keeps taking your new adaptations while he is out.
 
 Single player. Fan-made boss inspired by Mahoraga from Jujutsu Kaisen by Gege Akutami;
-not affiliated with the series or with Nolla Games. All sprites were drawn for this mod.
+not affiliated with the series or with Nolla Games. All sprites were drawn for this mod (Mahoraga animated in Aseprite).
 Sounds and effects come from the player's own copy of Noita.
 
 Installing by hand: copy this folder to Noita/mods/mahoraga and enable it in Mods,

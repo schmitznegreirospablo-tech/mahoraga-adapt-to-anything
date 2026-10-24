@@ -1,6 +1,6 @@
 ﻿{
     "sheet":  "attacks",
-    "notes":  "unlock: the adaptation type Mahoraga must have adapted to before he uses this attack (empty = from the start). offset_x: blast point in front of him (blast_at_self). area: half-width in pixels around the player that rain covers. warning: shown when the attack starts (empty = none). rain lasts repeats * repeat_gap_frames and runs alongside his other attacks. cut_storm: count huge cuts every repeat_gap_frames for repeats waves, crossing the area (half-width) around the target at random angles.",
+    "notes":  "animation: sprite animation played when the attack goes off (slam: on landing; charge, ring and cut_storm: repeated while it lasts). unlock: the adaptation type Mahoraga must have adapted to before he uses this attack (empty = from the start). offset_x: blast point in front of him (blast_at_self). area: half-width in pixels around the player that rain covers. warning: shown when the attack starts (empty = none). rain lasts repeats * repeat_gap_frames and runs alongside his other attacks. cut_storm: count huge cuts every repeat_gap_frames for repeats waves, crossing the area (half-width) around the target at random angles.",
     "columns":  [
                     "id",
                     "name",
@@ -18,6 +18,7 @@
                     "offset_x",
                     "area",
                     "behavior",
+                    "animation",
                     "warning",
                     "sound_bank",
                     "sound_event"
@@ -40,6 +41,7 @@
                      "offset_x":  0,
                      "area":  0,
                      "behavior":  "fan_at_target",
+                     "animation":  "attack_ranged",
                      "warning":  "",
                      "sound_bank":  "data/audio/Desktop/projectiles.bank",
                      "sound_event":  "player_projectiles/megalaser/launch"
@@ -61,6 +63,7 @@
                      "offset_x":  0,
                      "area":  0,
                      "behavior":  "leap_then_blast",
+                     "animation":  "slam_impact",
                      "warning":  "",
                      "sound_bank":  "data/audio/Desktop/explosion.bank",
                      "sound_event":  "explosions/magic_rocket_big"
@@ -82,6 +85,7 @@
                      "offset_x":  0,
                      "area":  0,
                      "behavior":  "dash_digging",
+                     "animation":  "charge",
                      "warning":  "",
                      "sound_bank":  "data/audio/Desktop/misc.bank",
                      "sound_event":  "misc/beam_from_sky_kick"
@@ -103,6 +107,7 @@
                      "offset_x":  0,
                      "area":  0,
                      "behavior":  "ring",
+                     "animation":  "adapt",
                      "warning":  "",
                      "sound_bank":  "data/audio/Desktop/projectiles.bank",
                      "sound_event":  "projectiles/enlightened_laser/launch_light"
@@ -124,6 +129,7 @@
                      "offset_x":  0,
                      "area":  0,
                      "behavior":  "fan_at_target",
+                     "animation":  "attack",
                      "warning":  "Mahoraga raises the Sword of Extermination high...",
                      "sound_bank":  "data/audio/Desktop/projectiles.bank",
                      "sound_event":  "player_projectiles/megalaser/launch"
@@ -145,6 +151,7 @@
                      "offset_x":  0,
                      "area":  0,
                      "behavior":  "lob_at_target",
+                     "animation":  "attack",
                      "warning":  "",
                      "sound_bank":  "data/audio/Desktop/explosion.bank",
                      "sound_event":  "explosions/magic_rocket_big"
@@ -166,6 +173,7 @@
                      "offset_x":  0,
                      "area":  0,
                      "behavior":  "blast_at_self",
+                     "animation":  "slam_impact",
                      "warning":  "The wheel glows white hot... RUN!",
                      "sound_bank":  "data/audio/Desktop/event_cues.bank",
                      "sound_event":  "event_cues/angered_the_gods/create"
@@ -187,6 +195,7 @@
                      "offset_x":  40,
                      "area":  0,
                      "behavior":  "blast_at_self",
+                     "animation":  "punch",
                      "warning":  "",
                      "sound_bank":  "data/audio/Desktop/explosion.bank",
                      "sound_event":  "explosions/magic_rocket_big"
@@ -208,6 +217,7 @@
                      "offset_x":  0,
                      "area":  260,
                      "behavior":  "rain",
+                     "animation":  "adapt",
                      "warning":  "Holy lances begin to fall from above!",
                      "sound_bank":  "data/audio/Desktop/event_cues.bank",
                      "sound_event":  "event_cues/angered_the_gods/create"
@@ -229,6 +239,7 @@
                      "offset_x":  0,
                      "area":  200,
                      "behavior":  "cut_storm",
+                     "animation":  "attack",
                      "warning":  "Mahoraga raises his hand... World Cutting Slash!",
                      "sound_bank":  "data/audio/Desktop/projectiles.bank",
                      "sound_event":  "player_projectiles/megalaser/launch"

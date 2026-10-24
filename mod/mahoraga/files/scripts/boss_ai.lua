@@ -59,6 +59,8 @@ local cdc = EntityGetFirstComponent( me, "CharacterDataComponent" )
 local function set_ai( on ) if ai ~= nil then EntitySetComponentIsEnabled( me, ai, on ) end end
 local function face( tx ) local _, _, _, sx = EntityGetTransform( me ); EntitySetTransform( me, x, y, 0, ( tx < x ) and -1 or 1, 1 ) end
 local function sound( a ) GamePlaySound( a.sound_bank, a.sound_event, x, y ) end
+-- attack animations (attacks sheet, animation column) go back to "stand" when they end, so the AI's walk/jump take over again
+local function anim( name ) GamePlayAnimation( me, name, 10, "stand", 0 ) end
 local power = mh_power( me )
 local function shoot( pid, sx, sy, vx, vy )
 	local p = MAHORAGA_PROJECTILES[ pid ]
@@ -131,7 +133,7 @@ local function start_attack( pick )
 	mh_set( me, "aim_y", py )
 	set_ai( false )
 	face( px )
-	GamePlayAnimation( me, "attack", 10 )
+	GamePlayAnimation( me, "windup", 10 )   -- holds the sword pulled back until the attack goes off
 	if a.warning ~= "" and not summon then GamePrint( a.warning ) end
 end
 
@@ -173,6 +175,7 @@ local at = t - a.windup_frames
 if a.behavior == "fan_at_target" then
 	if at == 0 then
 		sound( a )
+		anim( a.animation )
 		local base = math.atan2( ay - sy, ax - sx )
 		local spd = MAHORAGA_PROJECTILES[ a.projectile ].speed
 		for i = 1, a.count do
@@ -192,6 +195,7 @@ elseif a.behavior == "leap_then_blast" then
 	local grounded = cdc ~= nil and ComponentGetValue2( cdc, "is_on_ground" )
 	if ( at > 8 and grounded ) or at > 100 then
 		sound( a )
+		anim( a.animation )
 		shoot( "slam_blast", x, y - 2, 0, 0 )
 		local spd = MAHORAGA_PROJECTILES[ a.projectile ].speed
 		for i = 1, a.count do
@@ -209,6 +213,7 @@ elseif a.behavior == "dash_digging" then
 		mh_set( me, "dash_dir", dir )
 		sound( a )
 	end
+	if at % 16 == 0 then anim( a.animation ) end   -- the 4-frame charge loop lasts ~17 frames
 	if cdc ~= nil then ComponentSetValue2( cdc, "mVelocity", math.cos( dir ) * 320, math.sin( dir ) * 320 - 20 ) end
 	if at % a.repeat_gap_frames == 0 then
 		shoot( a.projectile, x + math.cos( dir ) * 14, y - 16 + math.sin( dir ) * 14, 0, 0 )
@@ -218,6 +223,7 @@ elseif a.behavior == "dash_digging" then
 elseif a.behavior == "ring" then
 	if at % a.repeat_gap_frames == 0 and at < a.repeats * a.repeat_gap_frames then
 		sound( a )
+		anim( a.animation )
 		local spd = MAHORAGA_PROJECTILES[ a.projectile ].speed
 		local rot = ( at / a.repeat_gap_frames ) * math.pi / a.count
 		for i = 1, a.count do
@@ -230,6 +236,7 @@ elseif a.behavior == "lob_at_target" then
 	-- thrown in an arc that lands on where the player stood
 	if at == 0 then
 		sound( a )
+		anim( a.animation )
 		local p = MAHORAGA_PROJECTILES[ a.projectile ]
 		local T = 0.9
 		local vx = ( ax - sx ) / T
@@ -243,6 +250,7 @@ elseif a.behavior == "blast_at_self" then
 	-- explosion are dealt to everything caught in the blast
 	if at == 0 then
 		sound( a )
+		anim( a.animation )
 		local dir = ( ax < x ) and -1 or 1
 		local bx, by = x + dir * a.offset_x, y - 20
 		shoot( a.projectile, bx, by, 0, 0 )
@@ -264,6 +272,7 @@ elseif a.behavior == "cut_storm" then
 	-- World Cutting Slash: waves of huge white cuts crossing the area around the target at random angles
 	if at % a.repeat_gap_frames == 0 and at < a.repeats * a.repeat_gap_frames then
 		sound( a )
+		anim( a.animation )
 		local p = MAHORAGA_PROJECTILES[ a.projectile ]
 		local reach = p.speed * p.lifetime / 60
 		SetRandomSeed( now + me, x - at )
@@ -280,6 +289,7 @@ elseif a.behavior == "cut_storm" then
 elseif a.behavior == "rain" then
 	if at == 0 then
 		sound( a )
+		anim( a.animation )
 		mh_set( me, "rain_attack", cur )
 		mh_set( me, "rain_until", now + a.repeats * a.repeat_gap_frames )
 	end

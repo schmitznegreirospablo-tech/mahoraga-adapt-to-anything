@@ -8,6 +8,12 @@ function damage_received( damage, message, entity_thats_responsible, is_fatal, p
 	local me = GetUpdatedEntityID()
 	if damage <= 0 or is_fatal then return end
 	if entity_thats_responsible == me and message ~= "$damage_drowning" then return end
+	-- flinch, but never over an attack's own animation (boss_ai.lua plays those)
+	local now = GameGetFrameNum()
+	if mh_get( me, "attack", 0 ) == 0 and now >= mh_get( me, "hurt_anim_ready", 0 ) then
+		mh_set( me, "hurt_anim_ready", now + 30 )
+		GamePlayAnimation( me, "hurt", 5, "stand", 0 )
+	end
 	local t = mh_damage_type( message, projectile_thats_responsible )
 	if t == nil then
 		print( "[mahoraga] unknown damage message: " .. tostring( message ) )

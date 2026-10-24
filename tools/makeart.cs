@@ -237,7 +237,7 @@ class MakeArt {
         string gfx = args[0], arena = args[1];
         Directory.CreateDirectory(gfx);
         Directory.CreateDirectory(arena);
-        Sheet().Save(Path.Combine(gfx, "mahoraga.png"), ImageFormat.Png);
+        // mahoraga.png now comes from Aseprite (64x56 frames, see gen.ps1); don't overwrite it.
         Wheel(24, 0.0).Save(Path.Combine(gfx, "wheel.png"), ImageFormat.Png);
         for (int i = 0; i < 6; i++) Wheel(24, i * Math.PI / 4 / 6).Save(Path.Combine(gfx, "wheel_" + i + ".png"), ImageFormat.Png);
         Slash().Save(Path.Combine(gfx, "slash.png"), ImageFormat.Png);

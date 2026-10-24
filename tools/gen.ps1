@@ -7,6 +7,16 @@ $mod = Join-Path $root 'mod\mahoraga'
 function Sheet($n) { Get-Content (Join-Path $root "sheets\$n.json") -Raw -Encoding UTF8 | ConvertFrom-Json }
 $S = @{}
 foreach ($n in 'boss','attacks','projectiles','adaptation','perks','world') { $S[$n] = Sheet $n }
+# Mahoraga's sprite animations (sheet drawn in Aseprite: 64x56 frames, 8 per row, one row per animation;
+# feet at x=24 on the last row, so the body keeps the old 32x44 size). name, row, frames, wait, loop, first column.
+# The script replays charge/adapt itself, so only the AI's own animations loop.
+$bossAnims = @(
+  @('stand', 0, 4, 0.3, 1, 0), @('walk', 1, 6, 0.12, 1, 0), @('run', 2, 6, 0.08, 1, 0), @('burn', 2, 6, 0.08, 1, 0),
+  @('windup', 3, 1, 0.1, 0, 0), @('attack', 3, 6, 0.07, 0, 0), @('attack_ranged', 4, 5, 0.07, 0, 0),
+  @('slam', 5, 5, 0.09, 0, 0), @('slam_impact', 5, 3, 0.09, 0, 2), @('charge', 6, 4, 0.07, 0, 0), @('punch', 7, 5, 0.07, 0, 0),
+  @('jump_up', 8, 2, 0.15, 1, 0), @('jump_fall', 9, 2, 0.15, 1, 0), @('land', 10, 3, 0.08, 0, 0), @('fly_idle', 9, 2, 0.15, 1, 0), @('fly_move', 9, 2, 0.15, 1, 0),
+  @('hurt', 11, 2, 0.1, 0, 0), @('death', 12, 8, 0.12, 0, 0), @('adapt', 13, 4, 0.15, 0, 0)
+)
 
 # ---------- preflight ----------
 $problems = New-Object System.Collections.Generic.List[string]
@@ -34,6 +44,8 @@ foreach ($b in $S.boss.rows) { foreach ($rp in ($b.reward_perk -split ',')) { if
 foreach ($p in $S.perks.rows) { if ($p.adaptation_source -ne 'adaptation.player') { $problems.Add("perks/$($p.id): adaptation_source must be adaptation.player") } }
 $behaviors = 'fan_at_target','leap_then_blast','dash_digging','ring','lob_at_target','blast_at_self','rain','cut_storm'
 foreach ($a in $S.attacks.rows) { if ($behaviors -notcontains $a.behavior) { $problems.Add("attacks/$($a.id): behavior '$($a.behavior)' has no implementation") } }
+$animNames = $bossAnims | ForEach-Object { $_[0] }
+foreach ($a in $S.attacks.rows) { if ($animNames -notcontains $a.animation) { $problems.Add("attacks/$($a.id): animation '$($a.animation)' is not in the boss sprite") } }
 $fields = 'melee','projectile','explosion','electricity','fire','drill','slice','ice','healing','physics_hit','radioactive','poison','overeating','curse','holy','drowning'
 $adaptTypes = $S.adaptation.rows | ForEach-Object { $_.type }
 foreach ($a in $S.attacks.rows) { if ($a.unlock -and $adaptTypes -notcontains $a.unlock) { $problems.Add("attacks/$($a.id): unlock '$($a.unlock)' is not an adaptation type") } }
@@ -196,17 +208,15 @@ $light
   Write-Out (Join-Path $ent ([IO.Path]::GetFileName($p.file))) $xml
 }
 
-# boss row -> sprite XML (sheet layout drawn by tools/makeart.cs: 40x44 frames, rows stand/walk/attack/jump)
+# boss row -> sprite XML (layout in $bossAnims at the top)
 $b = $S.boss.rows[0]
-$fw = 40; $fh = 44
-function Anim($name, $row, $count, $wait, $loop) { "	<RectAnimation name=`"$name`" pos_x=`"0`" pos_y=`"$($row * $fh)`" frame_count=`"$count`" frame_width=`"$fw`" frame_height=`"$fh`" frame_wait=`"$wait`" frames_per_row=`"4`" loop=`"$loop`" />" }
+$fw = 64; $fh = 56
+function Anim($name, $row, $count, $wait, $loop, $col) { "	<RectAnimation name=`"$name`" pos_x=`"$($col * $fw)`" pos_y=`"$($row * $fh)`" frame_count=`"$count`" frame_width=`"$fw`" frame_height=`"$fh`" frame_wait=`"$wait`" frames_per_row=`"8`" loop=`"$loop`" />" }
 $sx = @(
   "<!-- GENERATED from sheets/boss.json by tools/gen.ps1 -->",
-  "<Sprite filename=`"mods/mahoraga/files/gfx/mahoraga.png`" offset_x=`"16`" offset_y=`"43`" default_animation=`"stand`">",
-  (Anim 'stand' 0 2 0.35 1), (Anim 'walk' 1 4 0.14 1), (Anim 'run' 1 4 0.10 1), (Anim 'burn' 1 4 0.10 1),
-  (Anim 'attack' 2 4 0.08 0), (Anim 'attack_ranged' 2 4 0.08 0),
-  (Anim 'jump_up' 3 1 0.2 0), (Anim 'jump_fall' 3 1 0.2 0), (Anim 'land' 3 2 0.1 0), (Anim 'fly_idle' 3 2 0.2 1), (Anim 'fly_move' 3 2 0.2 1),
-  "</Sprite>")
+  "<Sprite filename=`"mods/mahoraga/files/gfx/mahoraga.png`" offset_x=`"24`" offset_y=`"55`" default_animation=`"stand`">") +
+  ($bossAnims | ForEach-Object { Anim $_[0] $_[1] $_[2] $_[3] $_[4] $_[5] }) +
+  @("</Sprite>")
 Write-Out (Join-Path $mod 'files\gfx\mahoraga.xml') ($sx -join "`n")
 
 # boss row -> entity XML

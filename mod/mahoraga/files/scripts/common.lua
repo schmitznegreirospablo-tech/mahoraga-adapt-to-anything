@@ -81,6 +81,7 @@ function mh_apply_adaptation( me, t, how )
 	mh_set( me, "adapted_" .. t, 1 )
 	mh_set( me, "adapt_count", count )
 	mh_set( me, "wheel_spin", GameGetFrameNum() )
+	GamePlayAnimation( me, "adapt", 20, "stand", 0 )   -- glows for as long as the wheel turns (~36 frames)
 	if t == "drowning" then
 		ComponentSetValue2( dmc, "air_needed", false )
 	else
