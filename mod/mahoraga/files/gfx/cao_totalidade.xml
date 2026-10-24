@@ -1,14 +1,14 @@
-<Sprite filename="mods/mahoraga/files/gfx/cao_totalidade.png" offset_x="28" offset_y="49" default_animation="stand">
-	<RectAnimation name="stand" pos_x="0" pos_y="0" frame_count="4" frame_width="64" frame_height="50" frame_wait="0.25" frames_per_row="8" loop="1" />
-	<RectAnimation name="walk" pos_x="0" pos_y="50" frame_count="6" frame_width="64" frame_height="50" frame_wait="0.1" frames_per_row="8" loop="1" />
-	<RectAnimation name="run" pos_x="0" pos_y="100" frame_count="6" frame_width="64" frame_height="50" frame_wait="0.07" frames_per_row="8" loop="1" />
-	<RectAnimation name="attack" pos_x="0" pos_y="150" frame_count="4" frame_width="64" frame_height="50" frame_wait="0.06" frames_per_row="8" loop="0" />
-	<RectAnimation name="jump_up" pos_x="0" pos_y="200" frame_count="2" frame_width="64" frame_height="50" frame_wait="0.12" frames_per_row="8" loop="1" />
-	<RectAnimation name="jump_fall" pos_x="0" pos_y="250" frame_count="2" frame_width="64" frame_height="50" frame_wait="0.12" frames_per_row="8" loop="1" />
-	<RectAnimation name="hurt" pos_x="0" pos_y="300" frame_count="2" frame_width="64" frame_height="50" frame_wait="0.1" frames_per_row="8" loop="0" />
-	<RectAnimation name="burn" pos_x="0" pos_y="100" frame_count="6" frame_width="64" frame_height="50" frame_wait="0.07" frames_per_row="8" loop="1" />
-	<RectAnimation name="attack_ranged" pos_x="0" pos_y="150" frame_count="4" frame_width="64" frame_height="50" frame_wait="0.06" frames_per_row="8" loop="1" />
-	<RectAnimation name="land" pos_x="0" pos_y="0" frame_count="4" frame_width="64" frame_height="50" frame_wait="0.25" frames_per_row="8" loop="1" />
-	<RectAnimation name="fly_idle" pos_x="0" pos_y="250" frame_count="2" frame_width="64" frame_height="50" frame_wait="0.12" frames_per_row="8" loop="1" />
-	<RectAnimation name="fly_move" pos_x="0" pos_y="250" frame_count="2" frame_width="64" frame_height="50" frame_wait="0.12" frames_per_row="8" loop="1" />
+<Sprite filename="mods/mahoraga/files/gfx/cao_totalidade.png" offset_x="22" offset_y="39" default_animation="stand">
+	<RectAnimation name="stand" pos_x="0" pos_y="0" frame_count="4" frame_width="52" frame_height="40" frame_wait="0.25" frames_per_row="8" loop="1" />
+	<RectAnimation name="walk" pos_x="0" pos_y="40" frame_count="6" frame_width="52" frame_height="40" frame_wait="0.1" frames_per_row="8" loop="1" />
+	<RectAnimation name="run" pos_x="0" pos_y="80" frame_count="6" frame_width="52" frame_height="40" frame_wait="0.07" frames_per_row="8" loop="1" />
+	<RectAnimation name="attack" pos_x="0" pos_y="120" frame_count="4" frame_width="52" frame_height="40" frame_wait="0.06" frames_per_row="8" loop="0" />
+	<RectAnimation name="jump_up" pos_x="0" pos_y="160" frame_count="2" frame_width="52" frame_height="40" frame_wait="0.12" frames_per_row="8" loop="1" />
+	<RectAnimation name="jump_fall" pos_x="0" pos_y="200" frame_count="2" frame_width="52" frame_height="40" frame_wait="0.12" frames_per_row="8" loop="1" />
+	<RectAnimation name="hurt" pos_x="0" pos_y="240" frame_count="2" frame_width="52" frame_height="40" frame_wait="0.1" frames_per_row="8" loop="0" />
+	<RectAnimation name="burn" pos_x="0" pos_y="80" frame_count="6" frame_width="52" frame_height="40" frame_wait="0.07" frames_per_row="8" loop="1" />
+	<RectAnimation name="attack_ranged" pos_x="0" pos_y="120" frame_count="4" frame_width="52" frame_height="40" frame_wait="0.06" frames_per_row="8" loop="1" />
+	<RectAnimation name="land" pos_x="0" pos_y="0" frame_count="4" frame_width="52" frame_height="40" frame_wait="0.25" frames_per_row="8" loop="1" />
+	<RectAnimation name="fly_idle" pos_x="0" pos_y="200" frame_count="2" frame_width="52" frame_height="40" frame_wait="0.12" frames_per_row="8" loop="1" />
+	<RectAnimation name="fly_move" pos_x="0" pos_y="200" frame_count="2" frame_width="52" frame_height="40" frame_wait="0.12" frames_per_row="8" loop="1" />
 </Sprite>

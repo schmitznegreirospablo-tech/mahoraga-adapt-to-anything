@@ -111,8 +111,8 @@
                      "id":  "escape_chase_seconds",
                      "kind":  "number",
                      "target":  "escape",
-                     "value":  180,
-                     "detail":  "escape mode: seconds Mahoraga needs to reach the player from his arena at the start"
+                     "value":  600,
+                     "detail":  "escape mode: seconds Mahoraga needs to reach the player from his arena at the start (10 minutes)"
                  },
                  {
                      "id":  "escape_spawn_distance",

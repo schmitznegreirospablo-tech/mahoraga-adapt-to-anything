@@ -129,7 +129,7 @@ end
 function mh_summon_target( me, x, y, range )
 	local best, best_d = nil, range * range
 	for _, e in ipairs( EntityGetInRadiusWithTag( x, y, range, "enemy" ) or {} ) do
-		if e ~= me and EntityGetIsAlive( e ) and not EntityHasTag( e, "mahoraga_summon" ) then
+		if e ~= me and EntityGetIsAlive( e ) and not mh_is_ally( e, mh_player() ) then
 			local ex, ey = EntityGetTransform( e )
 			local d = ( ex - x ) ^ 2 + ( ey - y ) ^ 2
 			if d < best_d then best, best_d = e, d end
@@ -252,6 +252,7 @@ function mahoraga_spawn_dogs( player )
 	for i, k in ipairs( kinds ) do
 		local x = px + ( ( i == 1 ) and 20 or -20 )
 		local e = EntityLoad( "mods/mahoraga/files/entities/dog_" .. k .. ".xml", x, py )
+		mh_make_ally( e )
 		mh_set( e, "bite_mult", mult )
 		local dmc = EntityGetFirstComponent( e, "DamageModelComponent" )
 		if dmc ~= nil and mult ~= 1 then
@@ -291,6 +292,14 @@ function mahoraga_dog_kill( player, was_boss )
 	else
 		GamePrintImportant( "Divine Dog: Totality", "The two dogs merge into one great beast." )
 	end
+end
+
+-- The player's allies (summoned Mahoraga, Divine Dogs) are built on data/entities/base_enemy_basic.xml, which tags
+-- them "enemy": take it off, or they bite themselves, bite each other and draw every "enemy" seeker.
+function mh_make_ally( e )
+	if EntityHasTag( e, "enemy" ) then EntityRemoveTag( e, "enemy" ) end
+	local ai = EntityGetFirstComponentIncludingDisabled( e, "AnimalAIComponent" )
+	if ai ~= nil then ComponentSetValue2( ai, "dont_counter_attack_own_herd", true ) end
 end
 
 -- Who the summoned Mahoraga must never hurt: the player, other summons and the Divine Dogs.

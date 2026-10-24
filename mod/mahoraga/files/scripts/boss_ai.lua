@@ -36,6 +36,7 @@ py = py - 6
 
 -- Your Mahoraga aims at the nearest enemy instead, keeps up with you and takes your adaptations.
 if summon then
+	if EntityHasTag( me, "enemy" ) then mh_make_ally( me ) end
 	if now % 30 == 0 then mh_summon_sync( me, player, "summon" ) end
 	local target = mh_summon_target( me, x, y, 450 )
 	if target ~= nil then

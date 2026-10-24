@@ -1,6 +1,6 @@
 -- Divine Dogs spritesheets (procedural rig, same approach as gerar_mahoraga.lua). Facing right; Noita mirrors it.
 -- Run: aseprite -b --script-param out=<folder> --script gerar_cao_divino.lua
--- Makes: cao_branco.png, cao_preto.png (40x32 frames), cao_totalidade.png (64x50 frames), one .aseprite each,
+-- Makes: cao_branco.png, cao_preto.png (32x26 frames), cao_totalidade.png (52x40 frames), one .aseprite each,
 -- their Noita sprite XMLs, plus the perk icons (16x16) and two effects: crack.png and electric_burst.png.
 local pc = app.pixelColor
 local function C(h) return pc.rgba(tonumber(h:sub(2,3),16), tonumber(h:sub(4,5),16), tonumber(h:sub(6,7),16), 255) end
@@ -68,14 +68,15 @@ local function paint(m, fill, shade, outline)
   end
 end
 local function shadeBottom(c) return function(x, y, m) if not has(m, x, y + 1) then return c end end end
+local function shadeLit(top, bottom) return function(x, y, m) if not has(m, x, y + 1) then return bottom elseif not has(m, x, y - 1) then return top end end end
 local function dot(ux, uy, c) local x, y = math.floor(ux * SC + OX + 0.5), math.floor(uy * SC + GY + 0.5); if inb(x, y) then buf[idx(x, y)] = c end end
 local function rad(a) return a * math.pi / 180 end
 
 -- palettes
 local PAL = {
-  white = { O = C"#1c1820", F = C"#ece8df", S = C"#bab3aa", D = C"#8a837c", M = C"#2e2a30", E = C"#1c1820", N = C"#2e2a30", T = C"#d9675f" },
-  black = { O = C"#0b0a0d", F = C"#36313b", S = C"#242128", D = C"#18161b", M = C"#ece8df", E = C"#f2efe6", N = C"#0b0a0d", T = C"#d9675f" },
-  total = { O = C"#0b0a0d", F = C"#2f2b33", S = C"#1f1c22", D = C"#141216", M = C"#ece8df", E = C"#9fe6ff", N = C"#0b0a0d", T = C"#d9675f", mane = C"#ece8df", maneS = C"#bab3aa" },
+  white = { O = C"#3a3438", F = C"#ece8df", S = C"#c4bcb2", D = C"#948b83", H = C"#fffdf8", M = C"#2e2a30", E = C"#1c1820", N = C"#2e2a30", T = C"#d9675f", IE = C"#d8b2ad", TU = C"#fffdf8" },
+  black = { O = C"#0b0a0d", F = C"#36313b", S = C"#26222a", D = C"#18161b", H = C"#4e4856", M = C"#ece8df", E = C"#f2efe6", N = C"#0b0a0d", T = C"#d9675f", IE = C"#5a4a52", TU = C"#5c5664" },
+  total = { O = C"#0b0a0d", F = C"#2f2b33", S = C"#1f1c22", D = C"#141216", H = C"#47414f", M = C"#ece8df", E = C"#9fe6ff", N = C"#0b0a0d", T = C"#d9675f", IE = C"#5a4a52", TU = C"#ece8df", mane = C"#ece8df", maneS = C"#bab3aa" },
 }
 
 -- one pose: by (body bob), lean (body tilt), legs {fl, bl} as {foot x, foot y} offsets, head {dx, dy}, jaw (open px), tail angle, eye shut
@@ -111,7 +112,9 @@ local function drawPose(p, pal, mane)
   capsule(bm, hip[1], hip[2] - 0.5, sh[1], sh[2] - 0.5, 3.3)
   capsule(bm, sh[1] - 1, sh[2] + 0.5, sh[1] + 1, sh[2] + 0.5, 4.0)
   capsule(bm, sh[1], sh[2] - 1, head[1] - 2, head[2] + 1, 2.6)
-  paint(bm, pal.F, shadeBottom(pal.S), pal.O)
+  paint(bm, pal.F, shadeLit(pal.H, pal.S), pal.O)
+  -- a fluffy chest tuft under the neck
+  for k = 0, 2 do dot(sh[1] + 2 + k * 0.6, sh[2] + 1.5 + k * 0.9, pal.TU) end
   if mane then  -- Totality: white mane over neck and shoulders
     local mm = {}
     capsule(mm, sh[1] - 2, sh[2] - 1, head[1] - 2, head[2] + 1, 3.6)
@@ -132,7 +135,8 @@ local function drawPose(p, pal, mane)
   local em2 = {}
   poly(em2, { { head[1] - 1.5, head[2] - 2 }, { head[1] - 0.5, head[2] - 9 }, { head[1] + 1.8, head[2] - 2.5 } })
   paint(em2, pal.F, nil, pal.O)
-  paint(hm, pal.F, shadeBottom(pal.S), pal.O)
+  paint(hm, pal.F, shadeLit(pal.H, pal.S), pal.O)
+  dot(head[1] - 0.3, head[2] - 4.5, pal.IE); dot(head[1] - 0.2, head[2] - 5.5, pal.IE)   -- inside of the near ear
   -- markings: the shikigami stripe over the eye and the nose
   for k = -1, 3 do dot(head[1] + k, head[2] - 2.2 + k * 0.15, pal.M) end
   dot(head[1] - 1, head[2] + 0.5, pal.M); dot(head[1] - 2, head[2] + 1.5, pal.M)
@@ -204,10 +208,10 @@ local function build(name, pal, fw, fh, ox, gy, sc, mane, out)
   local f = io.open(out .. "\\" .. name .. ".xml", "w"); f:write(table.concat(xml, "\n") .. "\n"); f:close()
 end
 
-local out = app.params.out
-build("cao_branco", PAL.white, 40, 32, 18, 30, 1.0, false, out)
-build("cao_preto", PAL.black, 40, 32, 18, 30, 1.0, false, out)
-build("cao_totalidade", PAL.total, 64, 50, 28, 48, 1.6, true, out)
+local out = ( args and args.out ) or app.params.out
+build("cao_branco", PAL.white, 32, 26, 14, 24, 0.8, false, out)
+build("cao_preto", PAL.black, 32, 26, 14, 24, 0.8, false, out)
+build("cao_totalidade", PAL.total, 52, 40, 22, 38, 1.3, true, out)
 
 -- perk icons: the white dog's head on a dark disc (16x16 ui, 16x16 item)
 -- hand-placed 16x16 head (K outline, W white, S shade, M marking, E eye, N nose)
@@ -284,4 +288,6 @@ do
   for y = 40, 56 do for x = 40, 56 do if (x - 48) ^ 2 + (y - 48) ^ 2 < 50 then img:drawPixel(x, y, C"#ffffff") elseif (x - 48) ^ 2 + (y - 48) ^ 2 < 64 then img:drawPixel(x, y, C"#bfe9ff") end end end
   save(img, "electric_burst.png")
 end
+-- live (Aseprite window): leave the white dog open to look at
+if app.isUIAvailable then app.open(out .. "/cao_branco.aseprite"); app.command.FitScreen() end
 return "ok"

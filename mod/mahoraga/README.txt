@@ -1,4 +1,4 @@
-Mahoraga: Adapt to Anything - a Noita mod (version 1.3.0)
+Mahoraga: Adapt to Anything - a Noita mod (version 1.3.1)
 
 Mahoraga, the Eight-Handled Wheel, waits in a temple arena carved into the edge wall
 at the far east of the world: cross the desert eastwards until you reach the great
@@ -44,7 +44,7 @@ joins (both stronger), then they merge into Divine Dog: Totality (5x the base). 
 they can be called again after 30 seconds, keeping their growth.
 
 Escape from Mahoraga (Options > Mod settings, for new games): Mahoraga leaves his arena as your
-run begins and digs straight at you, reaching you in about 3 minutes and never stopping after
+run begins and digs straight at you, reaching you in about 10 minutes and never stopping after
 that. You start with only one perk, the Divine Dogs. Kill him to end the chase: he drops his
 perks where he falls.
 

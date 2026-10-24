@@ -7,5 +7,5 @@ The sprites are drawn by Lua scripts run in Aseprite's batch mode, which also sa
 ```
 
 - `mahoraga/`: Mahoraga (64x56 frames; layout in `tools/gen.ps1` `$bossAnims`). Export goes to `mod/mahoraga/files/gfx/mahoraga.png`.
-- `cao_divino/`: the Divine Dogs (white and black 40x32, Totality 64x50, with their sprite XMLs), the perk icons,
+- `cao_divino/`: the Divine Dogs (white and black 32x26, Totality 52x40, with their sprite XMLs), the perk icons,
   the earthquake crack and the electric punch burst. Copy the outputs to `mod/mahoraga/files/gfx/`.

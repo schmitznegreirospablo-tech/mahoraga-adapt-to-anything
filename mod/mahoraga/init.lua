@@ -144,6 +144,7 @@ function mahoraga_toggle_summon( player )
 	local _, _, _, sx = EntityGetTransform( player )
 	local x = px + ( ( sx ~= nil and sx < 0 ) and -30 or 30 )
 	local e = EntityLoad( "mods/mahoraga/files/entities/mahoraga_summon.xml", x, py )
+	mh_make_ally( e )
 	-- as many adaptations (and the upgrades and techniques they bring) as the player has
 	local n = mh_summon_sync( e, player, "quiet" )
 	EntityLoad( "data/entities/particles/poof_white_appear.xml", x, py - 20 )

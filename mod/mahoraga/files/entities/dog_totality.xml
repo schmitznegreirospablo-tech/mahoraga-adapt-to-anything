@@ -12,7 +12,7 @@
 			attack_melee_enabled="1"
 			attack_melee_damage_min="0.01"
 			attack_melee_damage_max="0.01"
-			attack_melee_max_distance="26"
+			attack_melee_max_distance="22"
 			attack_melee_frames_between="24"
 			can_fly="0"
 			aggressiveness_min="100"
@@ -31,8 +31,8 @@
 		<PathFindingComponent can_jump="1" can_fly="0" jump_speed="140" initial_jump_lob="1" initial_jump_max_distance_x="100" initial_jump_max_distance_y="60" />
 		<GenomeDataComponent herd_id="player" food_chain_rank="5" is_predator="1" />
 		<CharacterPlatformingComponent run_velocity="90" jump_velocity_y="-16" accel_x="0.5" velocity_min_x="-160" velocity_max_x="160" />
-		<HitboxComponent aabb_min_x="-10" aabb_max_x="10" aabb_min_y="-22" aabb_max_y="2" />
-		<CharacterDataComponent collision_aabb_min_x="-8" collision_aabb_max_x="8" collision_aabb_min_y="-20" collision_aabb_max_y="2" mass="2" climb_over_y="4" />
+		<HitboxComponent aabb_min_x="-8" aabb_max_x="8" aabb_min_y="-18" aabb_max_y="2" />
+		<CharacterDataComponent collision_aabb_min_x="-6" collision_aabb_max_x="6" collision_aabb_min_y="-16" collision_aabb_max_y="2" mass="2" climb_over_y="4" />
 		<CameraBoundComponent enabled="0" />
 	</Base>
 	<SpriteComponent _tags="health_bar_back,ui,no_hitbox" has_special_scale="1" image_file="data/ui_gfx/health_slider_back.png" offset_x="12" offset_y="-4" emissive="1" never_ragdollify_on_death="1" z_index="-9000" />

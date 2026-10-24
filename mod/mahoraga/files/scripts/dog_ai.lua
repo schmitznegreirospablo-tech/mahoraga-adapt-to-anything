@@ -7,6 +7,7 @@ local now = GameGetFrameNum()
 local player = mh_player()
 if player == nil or mh_get( me, "dismissed", 0 ) == 1 then return end
 local x, y = EntityGetTransform( me )
+if EntityHasTag( me, "enemy" ) then mh_make_ally( me ) end
 
 local kind = "white"
 for _, c in ipairs( EntityGetComponentIncludingDisabled( me, "VariableStorageComponent" ) or {} ) do
@@ -38,7 +39,7 @@ if now % 3 == 0 and now >= mh_get( me, "next_bite", 0 ) then
 	local facing = ( sx ~= nil and sx < 0 ) and -1 or 1
 	local best, best_d = nil, 1e9
 	for _, e in ipairs( EntityGetInRadiusWithTag( x, y - 6, D.bite_range + 12, "enemy" ) or {} ) do
-		if EntityGetIsAlive( e ) then
+		if e ~= me and EntityGetIsAlive( e ) and not mh_is_ally( e, player ) then
 			local ex, ey = EntityGetTransform( e )
 			local dx = ex - x
 			if ( dx * facing > -4 or math.abs( dx ) < 6 ) and math.abs( ey - y ) < 20 + D.hitbox_h then
@@ -63,7 +64,10 @@ end
 if now % 20 == 0 then
 	local px, py = EntityGetTransform( player )
 	local d2 = ( px - x ) ^ 2 + ( py - y ) ^ 2
-	local hunting = #( EntityGetInRadiusWithTag( x, y, 220, "enemy" ) or {} ) > 0
+	local hunting = false
+	for _, e in ipairs( EntityGetInRadiusWithTag( x, y, 220, "enemy" ) or {} ) do
+		if e ~= me and not mh_is_ally( e, player ) then hunting = true break end
+	end
 	if d2 > 600 * 600 or ( not hunting and d2 > 260 * 260 ) then
 		EntityLoad( "data/entities/particles/poof_white_appear.xml", x, y - 10 )
 		EntitySetTransform( me, px + ( ( px < x ) and 24 or -24 ), py )
