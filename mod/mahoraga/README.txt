@@ -1,4 +1,4 @@
-Mahoraga: Adapt to Anything - a Noita mod (version 1.2.3)
+Mahoraga: Adapt to Anything - a Noita mod (version 1.3.0)
 
 Mahoraga, the Eight-Handled Wheel, waits in a temple arena carved into the edge wall
 at the far east of the world: cross the desert eastwards until you reach the great
@@ -19,6 +19,11 @@ arena and its own Mahoraga, tougher the further out you go.
   adapted to electricity -> Electrocute Giant Punch: an electric blast right in front of him
   adapted to holy power  -> Holy Shower: holy lances rain over a large area for a whole minute
   adapted to slicing     -> World Cutting Slash: about 3 seconds of huge white cuts across the whole area
+  adapted to curses      -> Omega Black Hole: a giant black hole hangs above his head for 10 seconds
+  adapted to impacts     -> Earthquake: the ground shakes and cracks, hitting everything standing near him
+  (the Electrocute Giant Punch is now a much bigger electric explosion)
+- Some adaptations change him too: adapted to projectiles he raises two energy shields
+  (like Skoude's); adapted to drowning he swims freely and fast.
 - Rewards (take both): the perks
   "Adapt to Anything": each kind of harm you keep taking hurts you less: 50%, then 75%, and
   at the third step you are fully adapted and it can no longer harm you. Drowning included
@@ -31,6 +36,17 @@ arena and its own Mahoraga, tougher the further out you go.
   He is a copy of the boss: when called he takes every kind of harm you have adapted to
   (with Adapt to Anything), with the same doubling of health and damage for each one and the
   techniques they unlock, and he keeps taking your new adaptations while he is out.
+
+Divine Dogs perk (in the normal perk pool): press your Divine Dogs key (default H, Options >
+Mod settings) to call the white Divine Dog, and again to send it back. It bites whatever is in
+front of it (200 health). Every 50 kills, or any boss it helps kill, the dogs grow: the black dog
+joins (both stronger), then they merge into Divine Dog: Totality (5x the base). If they fall,
+they can be called again after 30 seconds, keeping their growth.
+
+Escape from Mahoraga (Options > Mod settings, for new games): Mahoraga leaves his arena as your
+run begins and digs straight at you, reaching you in about 3 minutes and never stopping after
+that. You start with only one perk, the Divine Dogs. Kill him to end the chase: he drops his
+perks where he falls.
 
 Single player. Fan-made boss inspired by Mahoraga from Jujutsu Kaisen by Gege Akutami;
 not affiliated with the series or with Nolla Games. All sprites were drawn for this mod (Mahoraga animated in Aseprite).

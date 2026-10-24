@@ -1,4 +1,4 @@
-{
+﻿{
     "sheet":  "perks",
     "columns":  [
                     "id",
@@ -42,6 +42,20 @@
                      "on_pickup_message":  "The Eight-Handled Wheel will answer your call.",
                      "on_pickup_func":  "mahoraga_give_summon",
                      "on_remove_func":  "mahoraga_remove_summon"
+                 },
+                 {
+                     "id":  "MAHORAGA_DIVINE_DOGS",
+                     "ui_name":  "Divine Dogs",
+                     "ui_description":  "Press your Divine Dogs key (Mod settings) to call the white Divine Dog, and again to send it back. Every 50 kills or any boss kill it grows: the black dog joins, then both merge into Totality.",
+                     "ui_icon":  "mods/mahoraga/files/gfx/cao_perk_ui.png",
+                     "perk_icon":  "mods/mahoraga/files/gfx/cao_perk_item.png",
+                     "stackable":  false,
+                     "not_in_default_perk_pool":  "escape_mode",
+                     "usable_by_enemies":  false,
+                     "adaptation_source":  "adaptation.player",
+                     "on_pickup_message":  "Ten Shadows: the Divine Dogs answer your call.",
+                     "on_pickup_func":  "mahoraga_give_dogs",
+                     "on_remove_func":  "mahoraga_remove_dogs"
                  }
              ]
 }

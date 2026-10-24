@@ -45,3 +45,14 @@ function mahoraga_remove_summon( player )
 	mh_set( player, "mahoraga_summoner", 0 )
 	for _, e in ipairs( EntityGetWithTag( "mahoraga_summon" ) or {} ) do EntityKill( e ) end
 end
+-- Divine Dogs: the player calls and sends back the dogs with the key from Mod settings (init.lua).
+function mahoraga_give_dogs( player, message )
+	mh_set( player, "dog_summoner", 1 )
+	GamePrint( message )
+	GamePrint( "Press " .. mahoraga_dog_key_name() .. " to call or send back the Divine Dogs (change it in Options > Mod settings)." )
+end
+
+function mahoraga_remove_dogs( player )
+	mh_set( player, "dog_summoner", 0 )
+	mahoraga_dismiss_dogs()
+end

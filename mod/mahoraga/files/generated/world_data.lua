@@ -6,4 +6,11 @@ MAHORAGA_WORLD = {
   arena_top_y = -180,
   arena_load_range = 1400,
   boss_trigger_inset = 48,
+  dog_kills_per_phase = 50,
+  dog_respawn_frames = 1800,
+  dog_phase2_mult = 2,
+  escape_chase_seconds = 180,
+  escape_spawn_distance = 600,
+  escape_fight_distance = 300,
+  escape_run_speed = 2,
 }

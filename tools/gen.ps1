@@ -6,7 +6,7 @@ $root = Split-Path $PSScriptRoot -Parent
 $mod = Join-Path $root 'mod\mahoraga'
 function Sheet($n) { Get-Content (Join-Path $root "sheets\$n.json") -Raw -Encoding UTF8 | ConvertFrom-Json }
 $S = @{}
-foreach ($n in 'boss','attacks','projectiles','adaptation','perks','world') { $S[$n] = Sheet $n }
+foreach ($n in 'boss','attacks','projectiles','adaptation','perks','world','dogs') { $S[$n] = Sheet $n }
 # Mahoraga's sprite animations (sheet drawn in Aseprite: 64x56 frames, 8 per row, one row per animation;
 # feet at x=24 on the last row, so the body keeps the old 32x44 size). name, row, frames, wait, loop, first column.
 # The script replays charge/adapt itself, so only the AI's own animations loop.
@@ -33,7 +33,7 @@ foreach ($n in $S.Keys) {
   }
 }
 # empty strings are allowed only where a column means "none"
-$allowEmpty = @{ 'projectiles' = @('sprite','explosion_sprite','load_entities'); 'attacks' = @('unlock','warning') }
+$allowEmpty = @{ 'projectiles' = @('sprite','explosion_sprite','load_entities','cell_material'); 'attacks' = @('unlock','warning') }
 foreach ($n in $S.Keys) { foreach ($row in $S[$n].rows) { foreach ($col in $S[$n].columns) {
   if ($row.$col -is [string] -and $row.$col -eq '' -and -not ($allowEmpty[$n] -contains $col)) { $problems.Add("$n/$($row.($S[$n].columns[0])): '$col' is blank") }
 }}}
@@ -42,7 +42,7 @@ foreach ($a in $S.attacks.rows) { if ($projIds -notcontains $a.projectile) { $pr
 $perkIds = $S.perks.rows | ForEach-Object { $_.id }
 foreach ($b in $S.boss.rows) { foreach ($rp in ($b.reward_perk -split ',')) { if ($perkIds -notcontains $rp) { $problems.Add("boss/$($b.id): reward_perk '$rp' not in perks") } } }
 foreach ($p in $S.perks.rows) { if ($p.adaptation_source -ne 'adaptation.player') { $problems.Add("perks/$($p.id): adaptation_source must be adaptation.player") } }
-$behaviors = 'fan_at_target','leap_then_blast','dash_digging','ring','lob_at_target','blast_at_self','rain','cut_storm'
+$behaviors = 'fan_at_target','leap_then_blast','dash_digging','ring','lob_at_target','blast_at_self','rain','cut_storm','hold_above','earthquake'
 foreach ($a in $S.attacks.rows) { if ($behaviors -notcontains $a.behavior) { $problems.Add("attacks/$($a.id): behavior '$($a.behavior)' has no implementation") } }
 $animNames = $bossAnims | ForEach-Object { $_[0] }
 foreach ($a in $S.attacks.rows) { if ($animNames -notcontains $a.animation) { $problems.Add("attacks/$($a.id): animation '$($a.animation)' is not in the boss sprite") } }
@@ -64,8 +64,9 @@ function CheckFile($owner, $path) {
   }
 }
 foreach ($b in $S.boss.rows) { CheckFile "boss/$($b.id)" $b.wheel_sprite }
-foreach ($p in $S.projectiles.rows) { CheckFile "projectiles/$($p.id)" $p.sprite; CheckFile "projectiles/$($p.id)" $p.explosion_sprite; foreach ($le in ($p.load_entities -split ',')) { CheckFile "projectiles/$($p.id)" $le } }
+foreach ($p in $S.projectiles.rows) { if ($p.generate -eq 0) { CheckFile "projectiles/$($p.id)" $p.file }; CheckFile "projectiles/$($p.id)" $p.sprite; CheckFile "projectiles/$($p.id)" $p.explosion_sprite; foreach ($le in ($p.load_entities -split ',')) { CheckFile "projectiles/$($p.id)" $le } }
 foreach ($p in $S.perks.rows) { CheckFile "perks/$($p.id)" $p.ui_icon; CheckFile "perks/$($p.id)" $p.perk_icon }
+foreach ($d in $S.dogs.rows) { CheckFile "dogs/$($d.id)" $d.sprite }
 foreach ($w in $S.world.rows) { if ($w.kind -eq 'pixel_scene') { CheckFile "world/$($w.id)" $w.target } }
 if ($problems.Count) { "PREFLIGHT: $($problems.Count) problem(s)"; $problems; exit 1 }
 "PREFLIGHT: clean ($(($S.Values | ForEach-Object { $_.rows.Count } | Measure-Object -Sum).Sum) rows)"
@@ -100,6 +101,61 @@ foreach ($w in $S.world.rows) { if ($w.kind -eq 'number' -or $w.kind -eq 'pixel_
 $wl += '}'
 Write-Out (Join-Path $gen 'world_data.lua') ($hdr + ($wl -join "`n"))
 
+# dog rows -> dog_data.lua + entity XMLs (the Divine Dogs perk)
+Write-Out (Join-Path $gen 'dog_data.lua') ($hdr + (LuaTable 'MAHORAGA_DOGS' $S.dogs 'id'))
+foreach ($d in $S.dogs.rows) {
+  $rgb = $d.light_rgb -split ','
+  $hw = $d.hitbox_w / 2
+  $dx = @"
+<!-- GENERATED from sheets/dogs.json row '$($d.id)' by tools/gen.ps1 -->
+<Entity name="`$animal_mahoraga_dog_$($d.id)" tags="mortal,hittable,teleportable_NOT,polymorphable_NOT,necrobot_NOT,mahoraga_dog">
+	<Base file="data/entities/base_enemy_basic.xml">
+		<AnimalAIComponent
+			preferred_job="JobDefault"
+			escape_if_damaged_probability="0"
+			creature_detection_range_x="320"
+			creature_detection_range_y="160"
+			needs_food="0"
+			sense_creatures="1"
+			attack_ranged_enabled="0"
+			attack_melee_enabled="1"
+			attack_melee_damage_min="0.01"
+			attack_melee_damage_max="0.01"
+			attack_melee_max_distance="$($d.bite_range)"
+			attack_melee_frames_between="$($d.bite_cooldown_frames)"
+			can_fly="0"
+			aggressiveness_min="100"
+			aggressiveness_max="100" />
+		<DamageModelComponent
+			hp="$($d.hp)"
+			max_hp="$($d.hp)"
+			air_needed="1"
+			fire_probability_of_ignition="0.5"
+			falling_damages="0"
+			materials_damage="1"
+			ragdoll_material="meat"
+			blood_material="blood"
+			blood_multiplier="0.5" />
+		<SpriteComponent image_file="$($d.sprite)" offset_x="0" offset_y="0" />
+		<PathFindingComponent can_jump="1" can_fly="0" jump_speed="140" initial_jump_lob="1" initial_jump_max_distance_x="100" initial_jump_max_distance_y="60" />
+		<GenomeDataComponent herd_id="player" food_chain_rank="5" is_predator="1" />
+		<CharacterPlatformingComponent run_velocity="$($d.run_velocity)" jump_velocity_y="$($d.jump_velocity_y)" accel_x="0.5" velocity_min_x="-160" velocity_max_x="160" />
+		<HitboxComponent aabb_min_x="-$hw" aabb_max_x="$hw" aabb_min_y="-$($d.hitbox_h)" aabb_max_y="2" />
+		<CharacterDataComponent collision_aabb_min_x="-$([Math]::Max(3, $hw - 2))" collision_aabb_max_x="$([Math]::Max(3, $hw - 2))" collision_aabb_min_y="-$($d.hitbox_h - 2)" collision_aabb_max_y="2" mass="2" climb_over_y="4" />
+		<CameraBoundComponent enabled="0" />
+	</Base>
+	<SpriteComponent _tags="health_bar_back,ui,no_hitbox" has_special_scale="1" image_file="data/ui_gfx/health_slider_back.png" offset_x="12" offset_y="-4" emissive="1" never_ragdollify_on_death="1" z_index="-9000" />
+	<SpriteComponent _tags="health_bar,ui,no_hitbox" has_special_scale="1" image_file="data/ui_gfx/health_slider_front.png" offset_x="11" offset_y="-4" emissive="1" never_ragdollify_on_death="1" z_index="-9000" />
+	<HealthBarComponent />
+	<LightComponent radius="40" r="$($rgb[0])" g="$($rgb[1])" b="$($rgb[2])" offset_y="-8" />
+	<VariableStorageComponent name="dog_kind" value_string="$($d.id)" />
+	<LuaComponent script_source_file="mods/mahoraga/files/scripts/dog_ai.lua" execute_every_n_frame="1" />
+	<LuaComponent script_death="mods/mahoraga/files/scripts/dog_death.lua" execute_every_n_frame="-1" />
+</Entity>
+"@
+  Write-Out (Join-Path $ent "dog_$($d.id).xml") $dx
+}
+
 # perk rows -> perk_list append
 $pl = @($hdr.Trim(), 'dofile_once("mods/mahoraga/files/scripts/perk_adaptation.lua")')
 foreach ($p in $S.perks.rows) {
@@ -111,7 +167,7 @@ table.insert( perk_list, {
 	ui_icon = $(LuaVal $p.ui_icon),
 	perk_icon = $(LuaVal $p.perk_icon),
 	stackable = $(LuaVal $p.stackable),
-	not_in_default_perk_pool = $(LuaVal $p.not_in_default_perk_pool),
+	not_in_default_perk_pool = $(if ($p.not_in_default_perk_pool -is [string] -and $p.not_in_default_perk_pool -eq 'escape_mode') { '( ModSettingGet( "mahoraga.escape_mode" ) == true )' } else { LuaVal $p.not_in_default_perk_pool }),
 	usable_by_enemies = $(LuaVal $p.usable_by_enemies),
 	func = function( entity_perk_item, entity_who_picked, item_name )
 		$($p.on_pickup_func)( entity_who_picked, $(LuaVal $p.on_pickup_message) )
@@ -130,6 +186,7 @@ $tr = @()
 $b0 = $S.boss.rows[0]
 $tr += "animal_mahoraga,`"$($b0.name)`",,,,,,,,,,,,,"
 $tr += "animal_mahoraga_summon,`"$($b0.name) (summoned)`",,,,,,,,,,,,,"
+foreach ($d in $S.dogs.rows) { $tr += "animal_mahoraga_dog_$($d.id),`"$($d.name)`",,,,,,,,,,,,," }
 foreach ($p in $S.perks.rows) {
   $tr += "perk_$($p.id.ToLower()),`"$($p.ui_name)`",,,,,,,,,,,,,"
   $tr += "perkdesc_$($p.id.ToLower()),`"$($p.ui_description)`",,,,,,,,,,,,,"
@@ -138,6 +195,7 @@ Write-Out (Join-Path $mod 'files\translations.csv') (($tr -join "`n") + "`n")
 
 # projectile rows -> entity XMLs
 foreach ($p in $S.projectiles.rows) {
+  if ($p.generate -eq 0) { continue }   # a vanilla projectile used as it is (file points into data/)
   $rgb = $p.light_rgb -split ','
   $explode = [int]($p.explosion_radius -gt 0)
   $dmgType = if ($p.damage_type -eq 'projectile') { '' } else { "<damage_by_type $($p.damage_type)=`"$($p.damage)`" />" }
@@ -186,7 +244,7 @@ foreach ($p in $S.projectiles.rows) {
 			hole_destroy_liquid="1"
 			ray_energy="$($p.ray_energy)"
 			max_durability_to_destroy="$($p.dig_max_durability)"
-			create_cell_probability="0"
+			create_cell_probability="$($p.cell_probability)"$(if ($p.cell_material) { " create_cell_material=`"$($p.cell_material)`"" })
 			camera_shake="$([int]($p.explosion_radius))"
 			damage_mortals="1"
 			physics_explosion_power.min="0.6" physics_explosion_power.max="1.0"

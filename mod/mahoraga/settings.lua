@@ -17,26 +17,26 @@ local function key_name( code )
 	return "key " .. tostring( code )
 end
 
--- A keybind widget: click it, then press the key you want (Esc cancels).
-local listening = false
+-- A keybind widget: click it, then press the key you want (Esc cancels). listening = the setting waiting for a key.
+local listening = nil
 function mahoraga_setting_key( mod_id, gui, in_main_menu, im_id, setting )
 	local id = mod_setting_get_id( mod_id, setting )
 	local value = math.floor( tonumber( ModSettingGetNextValue( id ) ) or setting.value_default )
-	if listening then
+	if listening == id then
 		GuiText( gui, mod_setting_group_x_offset, 0, setting.ui_name .. ": press a key... (Esc to cancel)" )
 		if InputIsKeyJustDown( KEY_ESCAPE ) then
-			listening = false
+			listening = nil
 		else
 			for _, k in ipairs( KEYS ) do
 				if InputIsKeyJustDown( k[1] ) then
 					ModSettingSetNextValue( id, k[1], false )
-					listening = false
+					listening = nil
 					break
 				end
 			end
 		end
 	elseif GuiButton( gui, im_id, mod_setting_group_x_offset, 0, setting.ui_name .. ": [" .. key_name( value ) .. "]  (click to change)" ) then
-		listening = true
+		listening = id
 	end
 	mod_setting_tooltip( mod_id, gui, in_main_menu, setting )
 end
@@ -51,6 +51,21 @@ mod_settings =
 		value_default = 10,
 		scope = MOD_SETTING_SCOPE_RUNTIME,
 		ui_fn = mahoraga_setting_key,
+	},
+	{
+		id = "dog_key",
+		ui_name = "Divine Dogs key",
+		ui_description = "With the Divine Dogs perk, press this key to call the dogs, and again to send them back.",
+		value_default = 11,
+		scope = MOD_SETTING_SCOPE_RUNTIME,
+		ui_fn = mahoraga_setting_key,
+	},
+	{
+		id = "escape_mode",
+		ui_name = "Escape from Mahoraga (new games)",
+		ui_description = "Mahoraga leaves his arena as your run begins and digs straight toward you. You start with only one perk, the Divine Dogs. Kill him to end the chase and take his perks.",
+		value_default = false,
+		scope = MOD_SETTING_SCOPE_NEW_GAME,
 	},
 }
 

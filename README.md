@@ -1,9 +1,9 @@
 # Mahoraga: Adapt to Anything (Noita mod)
 
-A Mahoraga-inspired boss (8000 HP) waits in a temple arena at the far east edge of every Noita world. He adapts to every kind of harm (even drowning). Each adaptation heals him to full and doubles his health and damage, and some of them teach him new techniques: Giant Slash, Giant Napalm, Giant Nuke, Electrocute Giant Punch, Holy Shower and World Cutting Slash. Beat him for two perks: **Adapt to Anything**, and **Summon Mahoraga**, which calls your own Mahoraga (sharing your adaptations) with a key you pick in Options > Mod settings.
+A Mahoraga-inspired boss (8000 HP) waits in a temple arena at the far east edge of every Noita world. He adapts to every kind of harm (even drowning). Each adaptation heals him to full and doubles his health and damage, and some of them teach him new techniques: Giant Slash, Giant Napalm, Giant Nuke, Electrocute Giant Punch, Holy Shower and World Cutting Slash. Beat him for two perks: **Adapt to Anything**, and **Summon Mahoraga**, which calls your own Mahoraga (sharing your adaptations) with a key you pick in Options > Mod settings. New in 1.3: the **Escape from Mahoraga** mode (he digs his way to you from the start of the run), the **Divine Dogs** perk (white dog, then both dogs, then Totality as they kill), and new adaptations: Omega Black Hole (curses), Earthquake (impacts), energy shields (projectiles) and swimming (drowning).
 
 - Steam Workshop: https://steamcommunity.com/sharedfiles/filedetails/?id=3820434703
-- Current version: 1.2.3
+- Current version: 1.3.0
 
 ## Layout
 | Folder | What it is |
@@ -11,7 +11,9 @@ A Mahoraga-inspired boss (8000 HP) waits in a temple arena at the far east edge 
 | `mod/mahoraga/` | The mod itself. Copy it to `Noita/mods/mahoraga` and enable it in the Mods menu. |
 | `sheets/` | Data for the boss, attacks, projectiles, adaptations, perk and world. |
 | `tools/gen.ps1` | Generates `mod/mahoraga/files/generated/*`, the projectile/boss XMLs, perk list and translations from `sheets/`. |
+| `art/` | Aseprite sources: the Lua scripts that draw Mahoraga and the Divine Dogs, and their `.aseprite` files. |
 | `tools/*.cs` | Small helpers: `luacheck` (Lua syntax check with the game's lua51.dll), `wakunpack` (unpack `data/data.wak`), `makeart` (sprites), `wincap` (window capture). |
+| `sheets/dogs.json` | The Divine Dogs: stats per dog; phases and escape mode numbers are in `sheets/world.json`. |
 | `workshop/` | Steam Workshop metadata (`workshop.xml`, item id, preview image). |
 
 ## Building

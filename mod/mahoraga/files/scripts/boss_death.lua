@@ -9,6 +9,11 @@ function death( damage_type_bit_field, damage_message, entity_thats_responsible,
 
 	local left, top, right, bottom = mh_arena_rect( n )
 	local rx, ry = ( left + right ) * 0.5, bottom - 20
+	-- escape mode: the chaser drops his rewards where he falls, and the chase is over
+	if mh_get( me, "chaser", 0 ) == 1 then
+		rx, ry = x, y - 10
+		GlobalsSetValue( "mahoraga_escape", "done" )
+	end
 	-- every reward perk side by side; taking one leaves the others (reward_perk is a comma list)
 	local perks = {}
 	for id in string.gmatch( MAHORAGA_BOSS.mahoraga.reward_perk, "[^,]+" ) do table.insert( perks, id ) end

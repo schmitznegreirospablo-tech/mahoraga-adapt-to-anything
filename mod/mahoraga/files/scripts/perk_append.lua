@@ -32,3 +32,19 @@ table.insert( perk_list, {
 		mahoraga_remove_summon( entity_who_picked )
 	end,
 } )
+table.insert( perk_list, {
+	id = "MAHORAGA_DIVINE_DOGS",
+	ui_name = "$perk_mahoraga_divine_dogs",
+	ui_description = "$perkdesc_mahoraga_divine_dogs",
+	ui_icon = "mods/mahoraga/files/gfx/cao_perk_ui.png",
+	perk_icon = "mods/mahoraga/files/gfx/cao_perk_item.png",
+	stackable = false,
+	not_in_default_perk_pool = ( ModSettingGet( "mahoraga.escape_mode" ) == true ),
+	usable_by_enemies = false,
+	func = function( entity_perk_item, entity_who_picked, item_name )
+		mahoraga_give_dogs( entity_who_picked, "Ten Shadows: the Divine Dogs answer your call." )
+	end,
+	func_remove = function( entity_who_picked )
+		mahoraga_remove_dogs( entity_who_picked )
+	end,
+} )

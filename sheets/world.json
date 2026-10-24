@@ -1,18 +1,139 @@
-{
-  "sheet": "world",
-  "notes": "Arena and game hooks. Arena x is measured from the east edge of each world (world width = BiomeMapGetSize() * 512); it repeats in every parallel world at x + n * width.",
-  "columns": ["id", "kind", "target", "value", "detail"],
-  "rows": [
-    {"id": "arena_scene",        "kind": "pixel_scene", "target": "mods/mahoraga/files/arena/arena.png",        "value": "352x208", "detail": "material map: carved hall with templebrick walls, open west door"},
-    {"id": "arena_background",   "kind": "pixel_scene", "target": "mods/mahoraga/files/arena/arena_bg.png",     "value": "352x208", "detail": "background wall behind the hall"},
-    {"id": "arena_offset_x",     "kind": "number",      "target": "arena",  "value": -2060, "detail": "left edge of the arena relative to the world's east edge: the desert meets the edge wall at about -2050 (measured in game)"},
-    {"id": "arena_top_y",        "kind": "number",      "target": "arena",  "value": -180,  "detail": "top edge of the arena; puts the inner floor at y=16, the desert ground at the wall is y~20 (measured in game)"},
-    {"id": "arena_load_range",   "kind": "number",      "target": "arena",  "value": 1400,  "detail": "player distance at which the arena is stamped into that world"},
-    {"id": "boss_trigger_inset", "kind": "number",      "target": "arena",  "value": 48,    "detail": "Mahoraga wakes once the player is this far inside the arena past the west door"},
-    {"id": "hook_init",          "kind": "hook",        "target": "init.lua",                          "value": "OnModInit",          "detail": "append perk to perk_list"},
-    {"id": "hook_spawn",         "kind": "hook",        "target": "init.lua",                          "value": "OnPlayerSpawned",    "detail": "test mode setup; arena for world 0"},
-    {"id": "hook_update",        "kind": "hook",        "target": "init.lua",                          "value": "OnWorldPostUpdate",  "detail": "per-world arena stamping and boss wake-up"},
-    {"id": "hook_perk_list",     "kind": "append",      "target": "data/scripts/perks/perk_list.lua",  "value": "mods/mahoraga/files/scripts/perk_append.lua", "detail": "adds MAHORAGA_ADAPTATION"},
-    {"id": "hook_translations",  "kind": "append",      "target": "data/translations/common.csv",      "value": "mods/mahoraga/files/translations.csv",        "detail": "boss name for the boss health bar"}
-  ]
+﻿{
+    "sheet":  "world",
+    "notes":  "Arena and game hooks. Arena x is measured from the east edge of each world (world width = BiomeMapGetSize() * 512); it repeats in every parallel world at x + n * width.",
+    "columns":  [
+                    "id",
+                    "kind",
+                    "target",
+                    "value",
+                    "detail"
+                ],
+    "rows":  [
+                 {
+                     "id":  "arena_scene",
+                     "kind":  "pixel_scene",
+                     "target":  "mods/mahoraga/files/arena/arena.png",
+                     "value":  "352x208",
+                     "detail":  "material map: carved hall with templebrick walls, open west door"
+                 },
+                 {
+                     "id":  "arena_background",
+                     "kind":  "pixel_scene",
+                     "target":  "mods/mahoraga/files/arena/arena_bg.png",
+                     "value":  "352x208",
+                     "detail":  "background wall behind the hall"
+                 },
+                 {
+                     "id":  "arena_offset_x",
+                     "kind":  "number",
+                     "target":  "arena",
+                     "value":  -2060,
+                     "detail":  "left edge of the arena relative to the world\u0027s east edge: the desert meets the edge wall at about -2050 (measured in game)"
+                 },
+                 {
+                     "id":  "arena_top_y",
+                     "kind":  "number",
+                     "target":  "arena",
+                     "value":  -180,
+                     "detail":  "top edge of the arena; puts the inner floor at y=16, the desert ground at the wall is y~20 (measured in game)"
+                 },
+                 {
+                     "id":  "arena_load_range",
+                     "kind":  "number",
+                     "target":  "arena",
+                     "value":  1400,
+                     "detail":  "player distance at which the arena is stamped into that world"
+                 },
+                 {
+                     "id":  "boss_trigger_inset",
+                     "kind":  "number",
+                     "target":  "arena",
+                     "value":  48,
+                     "detail":  "Mahoraga wakes once the player is this far inside the arena past the west door"
+                 },
+                 {
+                     "id":  "hook_init",
+                     "kind":  "hook",
+                     "target":  "init.lua",
+                     "value":  "OnModInit",
+                     "detail":  "append perk to perk_list"
+                 },
+                 {
+                     "id":  "hook_spawn",
+                     "kind":  "hook",
+                     "target":  "init.lua",
+                     "value":  "OnPlayerSpawned",
+                     "detail":  "test mode setup; arena for world 0"
+                 },
+                 {
+                     "id":  "hook_update",
+                     "kind":  "hook",
+                     "target":  "init.lua",
+                     "value":  "OnWorldPostUpdate",
+                     "detail":  "per-world arena stamping and boss wake-up"
+                 },
+                 {
+                     "id":  "hook_perk_list",
+                     "kind":  "append",
+                     "target":  "data/scripts/perks/perk_list.lua",
+                     "value":  "mods/mahoraga/files/scripts/perk_append.lua",
+                     "detail":  "adds MAHORAGA_ADAPTATION"
+                 },
+                 {
+                     "id":  "hook_translations",
+                     "kind":  "append",
+                     "target":  "data/translations/common.csv",
+                     "value":  "mods/mahoraga/files/translations.csv",
+                     "detail":  "boss name for the boss health bar"
+                 },
+                 {
+                     "id":  "dog_kills_per_phase",
+                     "kind":  "number",
+                     "target":  "dogs",
+                     "value":  50,
+                     "detail":  "kills the dogs need for the next phase (any boss kill also counts as enough)"
+                 },
+                 {
+                     "id":  "dog_respawn_frames",
+                     "kind":  "number",
+                     "target":  "dogs",
+                     "value":  1800,
+                     "detail":  "after every dog has died, frames before they can be called again (30 s)"
+                 },
+                 {
+                     "id":  "dog_phase2_mult",
+                     "kind":  "number",
+                     "target":  "dogs",
+                     "value":  2,
+                     "detail":  "phase 2: white and black dog hp and bite x this"
+                 },
+                 {
+                     "id":  "escape_chase_seconds",
+                     "kind":  "number",
+                     "target":  "escape",
+                     "value":  180,
+                     "detail":  "escape mode: seconds Mahoraga needs to reach the player from his arena at the start"
+                 },
+                 {
+                     "id":  "escape_spawn_distance",
+                     "kind":  "number",
+                     "target":  "escape",
+                     "value":  600,
+                     "detail":  "escape mode: he appears in the world when his chase gets this close (px)"
+                 },
+                 {
+                     "id":  "escape_fight_distance",
+                     "kind":  "number",
+                     "target":  "escape",
+                     "value":  300,
+                     "detail":  "escape mode: closer than this he fights; farther, he runs at the player digging through everything"
+                 },
+                 {
+                     "id":  "escape_run_speed",
+                     "kind":  "number",
+                     "target":  "escape",
+                     "value":  2,
+                     "detail":  "escape mode: px per frame while running at the player once he has appeared"
+                 }
+             ]
 }

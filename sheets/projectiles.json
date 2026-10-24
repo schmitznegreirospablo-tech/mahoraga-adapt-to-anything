@@ -25,7 +25,10 @@
                     "collide_with_world",
                     "load_entities",
                     "explosion_audio",
-                    "ray_energy"
+                    "ray_energy",
+                    "generate",
+                    "cell_material",
+                    "cell_probability"
                 ],
     "rows":  [
                  {
@@ -53,7 +56,10 @@
                      "collide_with_world":  0,
                      "load_entities":  "",
                      "explosion_audio":  "explosions/magic_rocket_mid",
-                     "ray_energy":  800000
+                     "ray_energy":  800000,
+                     "generate":  1,
+                     "cell_material":  "",
+                     "cell_probability":  0
                  },
                  {
                      "id":  "shockwave",
@@ -80,7 +86,10 @@
                      "collide_with_world":  1,
                      "load_entities":  "",
                      "explosion_audio":  "explosions/magic_rocket_mid",
-                     "ray_energy":  800000
+                     "ray_energy":  800000,
+                     "generate":  1,
+                     "cell_material":  "",
+                     "cell_probability":  0
                  },
                  {
                      "id":  "slam_blast",
@@ -107,7 +116,10 @@
                      "collide_with_world":  1,
                      "load_entities":  "",
                      "explosion_audio":  "explosions/magic_rocket_mid",
-                     "ray_energy":  800000
+                     "ray_energy":  800000,
+                     "generate":  1,
+                     "cell_material":  "",
+                     "cell_probability":  0
                  },
                  {
                      "id":  "charge_blast",
@@ -134,7 +146,10 @@
                      "collide_with_world":  1,
                      "load_entities":  "",
                      "explosion_audio":  "explosions/magic_rocket_mid",
-                     "ray_energy":  800000
+                     "ray_energy":  800000,
+                     "generate":  1,
+                     "cell_material":  "",
+                     "cell_probability":  0
                  },
                  {
                      "id":  "wheel_orb",
@@ -161,7 +176,10 @@
                      "collide_with_world":  1,
                      "load_entities":  "",
                      "explosion_audio":  "explosions/magic_rocket_mid",
-                     "ray_energy":  800000
+                     "ray_energy":  800000,
+                     "generate":  1,
+                     "cell_material":  "",
+                     "cell_probability":  0
                  },
                  {
                      "id":  "giant_slash",
@@ -188,7 +206,10 @@
                      "collide_with_world":  0,
                      "load_entities":  "",
                      "explosion_audio":  "explosions/magic_rocket_mid",
-                     "ray_energy":  800000
+                     "ray_energy":  800000,
+                     "generate":  1,
+                     "cell_material":  "",
+                     "cell_probability":  0
                  },
                  {
                      "id":  "napalm",
@@ -215,7 +236,10 @@
                      "collide_with_world":  1,
                      "load_entities":  "data/entities/projectiles/deck/circle_fire.xml,data/entities/particles/particle_explosion/main_large.xml",
                      "explosion_audio":  "explosions/magic_rocket_big",
-                     "ray_energy":  800000
+                     "ray_energy":  800000,
+                     "generate":  1,
+                     "cell_material":  "",
+                     "cell_probability":  0
                  },
                  {
                      "id":  "nuke_blast",
@@ -242,7 +266,10 @@
                      "collide_with_world":  1,
                      "load_entities":  "data/entities/particles/particle_explosion/main_large.xml,data/entities/misc/loose_chunks.xml,data/entities/misc/explosion_was_here.xml",
                      "explosion_audio":  "explosions/nuke",
-                     "ray_energy":  6700000
+                     "ray_energy":  6700000,
+                     "generate":  1,
+                     "cell_material":  "",
+                     "cell_probability":  0
                  },
                  {
                      "id":  "electric_punch",
@@ -256,9 +283,9 @@
                      "lifetime":  2,
                      "damage_type":  "electricity",
                      "damage":  1.6,
-                     "explosion_radius":  52,
+                     "explosion_radius":  80,
                      "explosion_damage":  0.3,
-                     "explosion_sprite":  "data/particles/explosion_040_electric.xml",
+                     "explosion_sprite":  "data/particles/explosion_040_electric2.xml",
                      "dig_radius":  0,
                      "on_collision_die":  0,
                      "light_rgb":  "120,180,255",
@@ -267,9 +294,12 @@
                      "sprite_scale":  1,
                      "cell_eater_radius":  0,
                      "collide_with_world":  1,
-                     "load_entities":  "data/entities/particles/particle_explosion/main_blue.xml",
+                     "load_entities":  "data/entities/particles/particle_explosion/main_blue.xml,mods/mahoraga/files/entities/electric_burst.xml",
                      "explosion_audio":  "explosions/magic_rocket_big",
-                     "ray_energy":  800000
+                     "ray_energy":  800000,
+                     "generate":  1,
+                     "cell_material":  "spark_electric",
+                     "cell_probability":  25
                  },
                  {
                      "id":  "holy_lance",
@@ -296,7 +326,10 @@
                      "collide_with_world":  1,
                      "load_entities":  "",
                      "explosion_audio":  "explosions/magic_rocket_mid",
-                     "ray_energy":  800000
+                     "ray_energy":  800000,
+                     "generate":  1,
+                     "cell_material":  "",
+                     "cell_probability":  0
                  },
                  {
                      "id":  "world_cut",
@@ -323,7 +356,70 @@
                      "collide_with_world":  0,
                      "load_entities":  "",
                      "explosion_audio":  "explosions/magic_rocket_mid",
-                     "ray_energy":  800000
+                     "ray_energy":  800000,
+                     "generate":  1,
+                     "cell_material":  "",
+                     "cell_probability":  0
+                 },
+                 {
+                     "id":  "omega_hole",
+                     "file":  "data/entities/projectiles/deck/black_hole_giga.xml",
+                     "sprite":  "",
+                     "sprite_offset":  0,
+                     "sprite_offset_y":  0,
+                     "additive":  1,
+                     "speed":  0,
+                     "gravity_y":  0,
+                     "lifetime":  600,
+                     "damage_type":  "curse",
+                     "damage":  0.14,
+                     "explosion_radius":  0,
+                     "explosion_damage":  0,
+                     "explosion_sprite":  "",
+                     "dig_radius":  0,
+                     "on_collision_die":  0,
+                     "light_rgb":  "0,0,0",
+                     "sound_root":  "player_projectiles/bullet_disc_big",
+                     "dig_max_durability":  12,
+                     "sprite_scale":  1,
+                     "cell_eater_radius":  0,
+                     "collide_with_world":  1,
+                     "load_entities":  "",
+                     "explosion_audio":  "explosions/magic_rocket_mid",
+                     "ray_energy":  800000,
+                     "generate":  0,
+                     "cell_material":  "",
+                     "cell_probability":  0
+                 },
+                 {
+                     "id":  "quake",
+                     "file":  "mods/mahoraga/files/entities/proj_quake.xml",
+                     "sprite":  "",
+                     "sprite_offset":  0,
+                     "sprite_offset_y":  0,
+                     "additive":  1,
+                     "speed":  0,
+                     "gravity_y":  0,
+                     "lifetime":  2,
+                     "damage_type":  "physics_hit",
+                     "damage":  1.5,
+                     "explosion_radius":  0,
+                     "explosion_damage":  0,
+                     "explosion_sprite":  "",
+                     "dig_radius":  0,
+                     "on_collision_die":  0,
+                     "light_rgb":  "0,0,0",
+                     "sound_root":  "player_projectiles/bullet_disc_big",
+                     "dig_max_durability":  12,
+                     "sprite_scale":  1,
+                     "cell_eater_radius":  0,
+                     "collide_with_world":  1,
+                     "load_entities":  "",
+                     "explosion_audio":  "explosions/magic_rocket_mid",
+                     "ray_energy":  800000,
+                     "generate":  1,
+                     "cell_material":  "",
+                     "cell_probability":  0
                  }
              ]
 }

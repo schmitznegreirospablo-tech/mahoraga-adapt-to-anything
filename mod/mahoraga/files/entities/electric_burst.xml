@@ -1,0 +1,6 @@
+<!-- Electrocute Giant Punch: the burst of lightning drawn over the explosion -->
+<Entity name="mahoraga_electric_burst" tags="mahoraga_effect">
+	<SpriteComponent image_file="mods/mahoraga/files/gfx/electric_burst.png" offset_x="48" offset_y="48" additive="1" emissive="1" z_index="-200" has_special_scale="1" special_scale_x="1.6" special_scale_y="1.6" />
+	<LightComponent radius="160" r="120" g="200" b="255" fade_out_time="0.25" />
+	<LifetimeComponent lifetime="14" fade_sprites="1" />
+</Entity>

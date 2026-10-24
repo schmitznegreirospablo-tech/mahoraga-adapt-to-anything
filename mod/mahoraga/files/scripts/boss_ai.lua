@@ -59,6 +59,41 @@ local cdc = EntityGetFirstComponent( me, "CharacterDataComponent" )
 local function set_ai( on ) if ai ~= nil then EntitySetComponentIsEnabled( me, ai, on ) end end
 local function face( tx ) local _, _, _, sx = EntityGetTransform( me ); EntitySetTransform( me, x, y, 0, ( tx < x ) and -1 or 1, 1 ) end
 local function sound( a ) GamePlaySound( a.sound_bank, a.sound_event, x, y ) end
+-- Escape mode: the chaser runs straight at the player through everything (a dig component carves the way)
+-- until he is within escape_fight_distance, then fights as usual.
+if mh_get( me, "chaser", 0 ) == 1 then
+	local dig = EntityGetFirstComponentIncludingDisabled( me, "CellEaterComponent", "mahoraga_dig" )
+	local tx, ty = px, py + 6
+	local d = math.sqrt( ( tx - x ) ^ 2 + ( ty - y ) ^ 2 ) + 0.01
+	local traveling = mh_get( me, "traveling", 0 ) == 1
+	local far = MAHORAGA_WORLD.escape_fight_distance
+	if mh_get( me, "attack", 0 ) == 0 and ( d > far or ( traveling and d > far * 0.6 ) ) then
+		if not traveling then
+			mh_set( me, "traveling", 1 )
+			set_ai( false )
+		end
+		if dig ~= nil then EntitySetComponentIsEnabled( me, dig, true ) end
+		local sp = MAHORAGA_WORLD.escape_run_speed
+		EntitySetTransform( me, x + ( tx - x ) / d * sp, y + ( ty - y ) / d * sp, 0, ( tx < x ) and -1 or 1, 1 )
+		if cdc ~= nil then ComponentSetValue2( cdc, "mVelocity", 0, 0 ) end
+		if now % 30 == 0 then GamePlayAnimation( me, "run", 10 ) end
+		return
+	elseif traveling then
+		mh_set( me, "traveling", 0 )
+		set_ai( true )
+		if dig ~= nil then EntitySetComponentIsEnabled( me, dig, false ) end
+	end
+end
+
+-- Adapted to drowning: in water he swims straight at his target instead of floundering.
+if cdc ~= nil and mh_get( me, "adapted_drowning", 0 ) == 1 and mh_get( me, "attack", 0 ) == 0 then
+	local cpc = EntityGetFirstComponent( me, "CharacterPlatformingComponent" )
+	if cpc ~= nil and ComponentGetValue2( cpc, "mFramesSwimming" ) > 0 then
+		local d = math.sqrt( ( px - x ) ^ 2 + ( py - y ) ^ 2 ) + 0.01
+		ComponentSetValue2( cdc, "mVelocity", ( px - x ) / d * 140, ( py - y ) / d * 140 )
+	end
+end
+
 -- attack animations (attacks sheet, animation column) go back to "stand" when they end, so the AI's walk/jump take over again
 local function anim( name ) GamePlayAnimation( me, name, 10, "stand", 0 ) end
 local power = mh_power( me )
@@ -258,7 +293,7 @@ elseif a.behavior == "blast_at_self" then
 		if p.damage_type ~= "explosion" and p.damage > 0 then
 			local dtype = "DAMAGE_" .. string.upper( p.damage_type )
 			for _, e in ipairs( EntityGetInRadiusWithTag( bx, by, p.explosion_radius, "mortal" ) or {} ) do
-				if e ~= me and not ( summon and ( e == player or EntityHasTag( e, "mahoraga_summon" ) ) ) then
+				if e ~= me and not ( summon and mh_is_ally( e, player ) ) then
 					EntityInflictDamage( e, p.damage * power, dtype, MAHORAGA_ADAPT[ p.damage_type ].message_key, "NORMAL", dir * 40, -30, me )
 					if p.damage_type == "electricity" then LoadGameEffectEntityTo( e, "data/entities/misc/effect_electricity.xml" ) end
 				end
@@ -283,6 +318,55 @@ elseif a.behavior == "cut_storm" then
 			shoot( a.projectile, cx - dx * reach * 0.5, cy - dy * reach * 0.5, dx * p.speed, dy * p.speed )
 		end
 		GameScreenshake( 25, ax, ay )
+	end
+	if at >= a.repeats * a.repeat_gap_frames then finish() end
+
+elseif a.behavior == "hold_above" then
+	-- Omega Black Hole: a giant black hole hangs still above his head for its lifetime
+	if at == 0 then
+		sound( a )
+		anim( a.animation )
+		local p = MAHORAGA_PROJECTILES[ a.projectile ]
+		local e = shoot( a.projectile, x, y - a.offset_x, 0, 0 )
+		if e ~= nil then
+			local pc = EntityGetFirstComponentIncludingDisabled( e, "ProjectileComponent" )
+			if pc ~= nil then ComponentSetValue2( pc, "lifetime", p.lifetime ) end
+			local vc = EntityGetFirstComponentIncludingDisabled( e, "VelocityComponent" )
+			if vc ~= nil then
+				ComponentSetValue2( vc, "mVelocity", 0, 0 )
+				ComponentSetValue2( vc, "gravity_y", 0 )
+				ComponentSetValue2( vc, "air_friction", 20 )
+			end
+			for _, ad in ipairs( EntityGetComponent( e, "AreaDamageComponent" ) or {} ) do
+				ComponentSetValue2( ad, "damage_per_frame", p.damage * power )
+				if summon then ComponentSetValue2( ad, "entities_with_tag", "enemy" ) end
+			end
+		end
+	end
+	if at > 20 then finish() end
+
+elseif a.behavior == "earthquake" then
+	-- Earthquake: waves that shake the screen, crack the ground and hit everything standing in the area
+	if at % a.repeat_gap_frames == 0 and at < a.repeats * a.repeat_gap_frames then
+		sound( a )
+		anim( a.animation )
+		local p = MAHORAGA_PROJECTILES[ a.projectile ]
+		GameScreenshake( 80, x, y )
+		if at == 0 then EntityLoad( "data/entities/projectiles/deck/crumbling_earth_effect.xml", x, y - 60 ) end
+		SetRandomSeed( now + me, y + at )
+		for i = 1, a.count do
+			local cx = x + Random( -a.area, a.area )
+			local hit, hx, hy = RaytracePlatforms( cx, y - 30, cx, y + 120 )
+			if hit then EntityLoad( "mods/mahoraga/files/entities/crack.xml", cx, hy ) end
+		end
+		for _, e in ipairs( EntityGetInRadiusWithTag( x, y, a.area, "mortal" ) or {} ) do
+			if e ~= me and not ( summon and mh_is_ally( e, player ) ) then
+				local ex, ey = EntityGetTransform( e )
+				if math.abs( ey - y ) < 60 then
+					EntityInflictDamage( e, p.damage * power, "DAMAGE_PHYSICS_HIT", MAHORAGA_ADAPT.physics_hit.message_key, "NORMAL", 0, -60, me )
+				end
+			end
+		end
 	end
 	if at >= a.repeats * a.repeat_gap_frames then finish() end
 

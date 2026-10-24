@@ -87,6 +87,7 @@ function mh_apply_adaptation( me, t, how )
 	else
 		ComponentObjectSetValue2( dmc, "damage_multipliers", row.field, row.boss_result_mult )
 	end
+	mh_adaptation_bonus( me, t )
 	local new_max = ComponentGetValue2( dmc, "max_hp" ) * B.adapt_hp_mult
 	ComponentSetValue2( dmc, "max_hp", new_max )
 	ComponentSetValue2( dmc, "hp", new_max )
@@ -195,4 +196,104 @@ end
 function mahoraga_summon_key_name()
 	local k = mahoraga_summon_key()
 	return MAHORAGA_KEY_NAMES[ k ] or ( "key " .. tostring( k ) )
+end
+
+-- What some adaptations give Mahoraga besides immunity (boss and summon alike).
+function mh_adaptation_bonus( me, t )
+	if t == "projectile" then
+		-- two energy shields, like Skoude's
+		local x, y = EntityGetTransform( me )
+		for _, n in ipairs( { "outer", "inner" } ) do
+			EntityAddChild( me, EntityLoad( "mods/mahoraga/files/entities/mahoraga_shield_" .. n .. ".xml", x, y - 20 ) )
+		end
+	elseif t == "drowning" then
+		-- at home in water: no drag, no currents pushing him (boss_ai.lua also swims him at his target)
+		local cpc = EntityGetFirstComponent( me, "CharacterPlatformingComponent" )
+		if cpc ~= nil then
+			ComponentSetValue2( cpc, "swim_drag", 1 )
+			ComponentSetValue2( cpc, "swim_extra_horizontal_drag", 1 )
+			ComponentSetValue2( cpc, "swim_idle_buoyancy_coeff", 1 )
+			ComponentSetValue2( cpc, "swim_up_buoyancy_coeff", 1.2 )
+			ComponentSetValue2( cpc, "swim_down_buoyancy_coeff", 1 )
+		end
+		local cdc = EntityGetFirstComponent( me, "CharacterDataComponent" )
+		if cdc ~= nil then ComponentSetValue2( cdc, "liquid_velocity_coeff", 0 ) end
+	end
+end
+
+-- Divine Dogs perk ---------------------------------------------------------------------------------
+dofile_once("mods/mahoraga/files/generated/dog_data.lua")
+
+function mahoraga_dog_key()
+	local v = tonumber( ModSettingGet( "mahoraga.dog_key" ) )
+	if v == nil then return 11 end
+	return math.floor( v )
+end
+function mahoraga_dog_key_name()
+	local k = mahoraga_dog_key()
+	return MAHORAGA_KEY_NAMES[ k ] or ( "key " .. tostring( k ) )
+end
+
+function mh_dogs()
+	local out = {}
+	for _, e in ipairs( EntityGetWithTag( "mahoraga_dog" ) or {} ) do
+		if EntityGetIsAlive( e ) and mh_get( e, "dismissed", 0 ) == 0 then table.insert( out, e ) end
+	end
+	return out
+end
+
+-- Phase 1: the white dog. Phase 2: white and black, both stronger. Phase 3: Totality, the two merged.
+function mahoraga_spawn_dogs( player )
+	local px, py = EntityGetTransform( player )
+	local phase = mh_get( player, "dog_phase", 1 )
+	local kinds = { "white" }
+	if phase == 2 then kinds = { "white", "black" } elseif phase >= 3 then kinds = { "totality" } end
+	local mult = ( phase == 2 ) and MAHORAGA_WORLD.dog_phase2_mult or 1
+	for i, k in ipairs( kinds ) do
+		local x = px + ( ( i == 1 ) and 20 or -20 )
+		local e = EntityLoad( "mods/mahoraga/files/entities/dog_" .. k .. ".xml", x, py )
+		mh_set( e, "bite_mult", mult )
+		local dmc = EntityGetFirstComponent( e, "DamageModelComponent" )
+		if dmc ~= nil and mult ~= 1 then
+			ComponentSetValue2( dmc, "max_hp", ComponentGetValue2( dmc, "max_hp" ) * mult )
+			ComponentSetValue2( dmc, "hp", ComponentGetValue2( dmc, "hp" ) * mult )
+		end
+		EntityLoad( "data/entities/particles/poof_white_appear.xml", x, py - 10 )
+	end
+end
+
+function mahoraga_dismiss_dogs()
+	for _, e in ipairs( mh_dogs() ) do
+		local x, y = EntityGetTransform( e )
+		mh_set( e, "dismissed", 1 )   -- dog_death.lua: sent away, not killed
+		EntityLoad( "data/entities/particles/poof_white_appear.xml", x, y - 10 )
+		EntityKill( e )
+	end
+end
+
+-- A dog's bite finished someone: 50 kills (or one boss) grow the dogs to their next phase.
+function mahoraga_dog_kill( player, was_boss )
+	local phase = mh_get( player, "dog_phase", 1 )
+	if phase >= 3 then return end
+	local kills = mh_get( player, "dog_kills", 0 ) + 1
+	mh_set( player, "dog_kills", kills )
+	if not was_boss and kills < MAHORAGA_WORLD.dog_kills_per_phase then return end
+	mh_set( player, "dog_phase", phase + 1 )
+	mh_set( player, "dog_kills", 0 )
+	if #mh_dogs() > 0 then
+		mahoraga_dismiss_dogs()
+		mahoraga_spawn_dogs( player )
+	end
+	local x, y = EntityGetTransform( player )
+	GamePlaySound( "data/audio/Desktop/event_cues.bank", "event_cues/orb_distant_monster/create", x, y )
+	if phase + 1 == 2 then
+		GamePrintImportant( "The Black Divine Dog joins", "Both Divine Dogs now fight for you, stronger than before." )
+	else
+		GamePrintImportant( "Divine Dog: Totality", "The two dogs merge into one great beast." )
+	end
+end
+
+-- Who the summoned Mahoraga must never hurt: the player, other summons and the Divine Dogs.
+function mh_is_ally( e, player )
+	return e == player or EntityHasTag( e, "player_unit" ) or EntityHasTag( e, "mahoraga_summon" ) or EntityHasTag( e, "mahoraga_dog" )
 end

@@ -1,0 +1,5 @@
+<!-- Earthquake: a crack in the ground that fades after a few seconds -->
+<Entity name="mahoraga_crack" tags="mahoraga_effect">
+	<SpriteComponent image_file="mods/mahoraga/files/gfx/crack.png" offset_x="48" offset_y="8" z_index="-50" alpha="1" />
+	<LifetimeComponent lifetime="240" fade_sprites="1" />
+</Entity>

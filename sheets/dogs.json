@@ -1,0 +1,66 @@
+﻿{
+    "sheet":  "dogs",
+    "notes":  "The Divine Dogs (Summon perk MAHORAGA_DIVINE_DOGS). hp and bite_damage in Noita units (25 HP). Phase 1: white; phase 2: white + black, both x world.dog_phase2_mult; phase 3: totality alone (5x the base). bite: in front of the dog within bite_range px, every bite_cooldown_frames.",
+    "columns":  [
+                    "id",
+                    "name",
+                    "phase",
+                    "sprite",
+                    "hp",
+                    "bite_damage",
+                    "bite_range",
+                    "bite_cooldown_frames",
+                    "run_velocity",
+                    "jump_velocity_y",
+                    "hitbox_w",
+                    "hitbox_h",
+                    "light_rgb"
+                ],
+    "rows":  [
+                 {
+                     "id":  "white",
+                     "name":  "Divine Dog (White)",
+                     "phase":  1,
+                     "sprite":  "mods/mahoraga/files/gfx/cao_branco.xml",
+                     "hp":  8,
+                     "bite_damage":  1.2,
+                     "bite_range":  16,
+                     "bite_cooldown_frames":  30,
+                     "run_velocity":  70,
+                     "jump_velocity_y":  -14,
+                     "hitbox_w":  12,
+                     "hitbox_h":  14,
+                     "light_rgb":  "220,230,255"
+                 },
+                 {
+                     "id":  "black",
+                     "name":  "Divine Dog (Black)",
+                     "phase":  2,
+                     "sprite":  "mods/mahoraga/files/gfx/cao_preto.xml",
+                     "hp":  8,
+                     "bite_damage":  1.2,
+                     "bite_range":  16,
+                     "bite_cooldown_frames":  30,
+                     "run_velocity":  70,
+                     "jump_velocity_y":  -14,
+                     "hitbox_w":  12,
+                     "hitbox_h":  14,
+                     "light_rgb":  "120,140,200"
+                 },
+                 {
+                     "id":  "totality",
+                     "name":  "Divine Dog: Totality",
+                     "phase":  3,
+                     "sprite":  "mods/mahoraga/files/gfx/cao_totalidade.xml",
+                     "hp":  40,
+                     "bite_damage":  6,
+                     "bite_range":  26,
+                     "bite_cooldown_frames":  24,
+                     "run_velocity":  90,
+                     "jump_velocity_y":  -16,
+                     "hitbox_w":  20,
+                     "hitbox_h":  22,
+                     "light_rgb":  "160,230,255"
+                 }
+             ]
+}

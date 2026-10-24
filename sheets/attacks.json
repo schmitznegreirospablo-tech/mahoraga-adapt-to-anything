@@ -1,6 +1,6 @@
 ﻿{
     "sheet":  "attacks",
-    "notes":  "animation: sprite animation played when the attack goes off (slam: on landing; charge, ring and cut_storm: repeated while it lasts). unlock: the adaptation type Mahoraga must have adapted to before he uses this attack (empty = from the start). offset_x: blast point in front of him (blast_at_self). area: half-width in pixels around the player that rain covers. warning: shown when the attack starts (empty = none). rain lasts repeats * repeat_gap_frames and runs alongside his other attacks. cut_storm: count huge cuts every repeat_gap_frames for repeats waves, crossing the area (half-width) around the target at random angles.",
+    "notes":  "animation: sprite animation played when the attack goes off (slam: on landing; charge, ring and cut_storm: repeated while it lasts). unlock: the adaptation type Mahoraga must have adapted to before he uses this attack (empty = from the start). offset_x: blast point in front of him (blast_at_self). area: half-width in pixels around the player that rain covers. warning: shown when the attack starts (empty = none). rain lasts repeats * repeat_gap_frames and runs alongside his other attacks. cut_storm: count huge cuts every repeat_gap_frames for repeats waves, crossing the area (half-width) around the target at random angles. hold_above: the projectile (a vanilla one, see projectiles.generate) appears offset_x px above his head, stands still and lasts its row\u0027s lifetime. earthquake: repeats waves every repeat_gap_frames; each wave shakes the screen, cracks the ground in the area and hits everything on the ground in it with the projectile row\u0027s damage.",
     "columns":  [
                     "id",
                     "name",
@@ -243,6 +243,50 @@
                      "warning":  "Mahoraga raises his hand... World Cutting Slash!",
                      "sound_bank":  "data/audio/Desktop/projectiles.bank",
                      "sound_event":  "player_projectiles/megalaser/launch"
+                 },
+                 {
+                     "id":  "omega_black_hole",
+                     "name":  "Omega Black Hole",
+                     "phase":  1,
+                     "unlock":  "curse",
+                     "cooldown_frames":  1500,
+                     "range_min":  0,
+                     "range_max":  420,
+                     "windup_frames":  40,
+                     "projectile":  "omega_hole",
+                     "count":  1,
+                     "spread_deg":  0,
+                     "repeats":  1,
+                     "repeat_gap_frames":  0,
+                     "offset_x":  70,
+                     "area":  0,
+                     "behavior":  "hold_above",
+                     "animation":  "adapt",
+                     "warning":  "A black sun opens above Mahoraga\u0027s head...",
+                     "sound_bank":  "data/audio/Desktop/projectiles.bank",
+                     "sound_event":  "player_projectiles/black_hole/create"
+                 },
+                 {
+                     "id":  "earthquake",
+                     "name":  "Earthquake",
+                     "phase":  1,
+                     "unlock":  "physics_hit",
+                     "cooldown_frames":  660,
+                     "range_min":  0,
+                     "range_max":  320,
+                     "windup_frames":  30,
+                     "projectile":  "quake",
+                     "count":  3,
+                     "spread_deg":  0,
+                     "repeats":  6,
+                     "repeat_gap_frames":  30,
+                     "offset_x":  0,
+                     "area":  240,
+                     "behavior":  "earthquake",
+                     "animation":  "slam_impact",
+                     "warning":  "Mahoraga strikes the ground... the earth shakes!",
+                     "sound_bank":  "data/audio/Desktop/explosion.bank",
+                     "sound_event":  "explosions/magic_rocket_big"
                  }
              ]
 }
