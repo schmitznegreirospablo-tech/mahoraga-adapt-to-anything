@@ -81,6 +81,19 @@ local function mahoraga_escape_update( player )
 			local boss = EntityLoad( "mods/mahoraga/files/entities/mahoraga.xml", sx, sy )
 			mh_set( boss, "chaser", 1 )
 			mh_set( boss, "world", 0 )
+			-- the chaser is weaker: a share of the normal health and damage
+			local pm = MAHORAGA_WORLD.escape_power_mult
+			mh_set( boss, "power_mult", pm )
+			local dmc = EntityGetFirstComponent( boss, "DamageModelComponent" )
+			if dmc ~= nil then
+				ComponentSetValue2( dmc, "max_hp", ComponentGetValue2( dmc, "max_hp" ) * pm )
+				ComponentSetValue2( dmc, "hp", ComponentGetValue2( dmc, "hp" ) * pm )
+			end
+			local ai = EntityGetFirstComponentIncludingDisabled( boss, "AnimalAIComponent" )
+			if ai ~= nil then
+				ComponentSetValue2( ai, "attack_melee_damage_min", MAHORAGA_BOSS.mahoraga.contact_damage * mh_power( boss ) )
+				ComponentSetValue2( ai, "attack_melee_damage_max", MAHORAGA_BOSS.mahoraga.contact_damage * mh_power( boss ) )
+			end
 			EntityAddComponent2( boss, "CellEaterComponent", { _tags = "mahoraga_dig", radius = 22, eat_dynamic_physics_bodies = true, ignored_material_tag = "[indestructible]" } )
 			GlobalsSetValue( "mahoraga_escape", "hunting" )
 			GlobalsSetValue( "mahoraga_escape_missing", "0" )

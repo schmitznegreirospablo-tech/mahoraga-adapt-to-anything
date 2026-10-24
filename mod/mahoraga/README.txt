@@ -1,11 +1,11 @@
-Mahoraga: Adapt to Anything - a Noita mod (version 1.3.1)
+Mahoraga: Adapt to Anything - a Noita mod (version 1.3.2)
 
 Mahoraga, the Eight-Handled Wheel, waits in a temple arena carved into the edge wall
 at the far east of the world: cross the desert eastwards until you reach the great
 black wall; the arena doorway sits at ground level. Every parallel world has its own
 arena and its own Mahoraga, tougher the further out you go.
 
-- 8000 health, and hits hard: his weakest hit deals 200 damage, everything else in proportion.
+- 8000 health, and hits hard: his weakest hit deals 100 damage, everything else in proportion.
 - He adapts to anything: take enough of one kind of damage and his wheel turns and he
   becomes immune to it. Drowning counts too: he needs air until he adapts to it.
 - Every adaptation heals him to full and DOUBLES his max health and all his damage.
@@ -45,8 +45,9 @@ they can be called again after 30 seconds, keeping their growth.
 
 Escape from Mahoraga (Options > Mod settings, for new games): Mahoraga leaves his arena as your
 run begins and digs straight at you, reaching you in about 10 minutes and never stopping after
-that. You start with only one perk, the Divine Dogs. Kill him to end the chase: he drops his
-perks where he falls.
+that. You start with only one perk, the Divine Dogs. The chasing Mahoraga has a quarter of the usual
+health and damage. Kill him to end the chase: he drops no perks, but returns to his arena at the
+eastern edge, full strength, and drops them there as usual when beaten.
 
 Single player. Fan-made boss inspired by Mahoraga from Jujutsu Kaisen by Gege Akutami;
 not affiliated with the series or with Nolla Games. All sprites were drawn for this mod (Mahoraga animated in Aseprite).

@@ -13,4 +13,5 @@ MAHORAGA_WORLD = {
   escape_spawn_distance = 600,
   escape_fight_distance = 300,
   escape_run_speed = 2,
+  escape_power_mult = 0.25,
 }

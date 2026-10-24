@@ -134,6 +134,13 @@
                      "target":  "escape",
                      "value":  2,
                      "detail":  "escape mode: px per frame while running at the player once he has appeared"
+                 },
+                 {
+                     "id":  "escape_power_mult",
+                     "kind":  "number",
+                     "target":  "escape",
+                     "value":  0.25,
+                     "detail":  "escape mode: the chasing Mahoraga has this share of the normal health and damage (the one in his arena afterwards is normal)"
                  }
              ]
 }

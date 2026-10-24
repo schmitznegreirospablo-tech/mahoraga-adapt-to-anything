@@ -62,10 +62,11 @@ function mh_damage_type( message, projectile_id )
 	return nil
 end
 
--- How hard Mahoraga hits: every damage value in the sheets x damage_scale, doubled (adapt_damage_mult) per adaptation.
+-- How hard Mahoraga hits: every damage value in the sheets x damage_scale, doubled (adapt_damage_mult) per adaptation,
+-- x his own power_mult (escape mode's chaser: world.escape_power_mult).
 function mh_power( boss )
 	local B = MAHORAGA_BOSS.mahoraga
-	return B.damage_scale * B.adapt_damage_mult ^ mh_get( boss, "adapt_count", 0 )
+	return B.damage_scale * B.adapt_damage_mult ^ mh_get( boss, "adapt_count", 0 ) * mh_get( boss, "power_mult", 1 )
 end
 
 function mh_is_summon( e ) return mh_get( e, "summon", 0 ) == 1 end
