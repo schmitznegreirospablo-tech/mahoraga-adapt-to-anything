@@ -1,6 +1,6 @@
 ﻿{
     "sheet":  "attacks",
-    "notes":  "animation: sprite animation played when the attack goes off (slam: on landing; charge, ring and cut_storm: repeated while it lasts). unlock: the adaptation type Mahoraga must have adapted to before he uses this attack (empty = from the start). offset_x: blast point in front of him (blast_at_self). area: half-width in pixels around the player that rain covers. warning: shown when the attack starts (empty = none). rain lasts repeats * repeat_gap_frames and runs alongside his other attacks. cut_storm: count huge cuts every repeat_gap_frames for repeats waves, crossing the area (half-width) around the target at random angles. hold_above: the projectile (a vanilla one, see projectiles.generate) appears offset_x px above his head, stands still and lasts its row\u0027s lifetime. earthquake: repeats waves every repeat_gap_frames; each wave shakes the screen, cracks the ground in the area and hits everything on the ground in it with the projectile row\u0027s damage. unlock \"defense:\u003cid\u003e\" = after adapting to that defense (defenses sheet). lob_at_target with count \u003e 1 spreads the throws spread_deg px apart around the target. blink_strike: he vanishes and reappears offset_x px behind the target, then fires count projectiles in a fan.",
+    "notes":  "animation: sprite animation played when the attack goes off (slam: on landing; charge, ring and cut_storm: repeated while it lasts). unlock: the adaptation type Mahoraga must have adapted to before he uses this attack (empty = from the start). offset_x: blast point in front of him (blast_at_self). area: half-width in pixels around the player that rain covers. warning: shown when the attack starts (empty = none). rain lasts repeats * repeat_gap_frames and runs alongside his other attacks. cut_storm: count huge cuts every repeat_gap_frames for repeats waves, crossing the area (half-width) around the target at random angles. hold_above: the projectile (a vanilla one, see projectiles.generate) appears offset_x px above his head, stands still and lasts its row\u0027s lifetime. earthquake: repeats waves every repeat_gap_frames; each wave shakes the screen, cracks the ground in the area and hits everything on the ground in it with the projectile row\u0027s damage. unlock \"defense:\u003cid\u003e\" = after adapting to that defense (defenses sheet). lob_at_target with count \u003e 1 spreads the throws spread_deg px apart around the target. blink_strike: he vanishes and reappears offset_x px behind the target, then fires count projectiles in a fan. damage_mult: this attack\u0027s projectiles deal this share of their usual damage (Phantom Step\u0027s three slashes land together, so they deal half).",
     "columns":  [
                     "id",
                     "name",
@@ -21,7 +21,8 @@
                     "animation",
                     "warning",
                     "sound_bank",
-                    "sound_event"
+                    "sound_event",
+                    "damage_mult"
                 ],
     "rows":  [
                  {
@@ -44,7 +45,8 @@
                      "animation":  "attack_ranged",
                      "warning":  "",
                      "sound_bank":  "data/audio/Desktop/projectiles.bank",
-                     "sound_event":  "player_projectiles/megalaser/launch"
+                     "sound_event":  "player_projectiles/megalaser/launch",
+                     "damage_mult":  1
                  },
                  {
                      "id":  "slam",
@@ -66,7 +68,8 @@
                      "animation":  "slam_impact",
                      "warning":  "",
                      "sound_bank":  "data/audio/Desktop/explosion.bank",
-                     "sound_event":  "explosions/magic_rocket_big"
+                     "sound_event":  "explosions/magic_rocket_big",
+                     "damage_mult":  1
                  },
                  {
                      "id":  "charge",
@@ -88,7 +91,8 @@
                      "animation":  "charge",
                      "warning":  "",
                      "sound_bank":  "data/audio/Desktop/misc.bank",
-                     "sound_event":  "misc/beam_from_sky_kick"
+                     "sound_event":  "misc/beam_from_sky_kick",
+                     "damage_mult":  1
                  },
                  {
                      "id":  "wheel_pulse",
@@ -110,7 +114,8 @@
                      "animation":  "adapt",
                      "warning":  "",
                      "sound_bank":  "data/audio/Desktop/projectiles.bank",
-                     "sound_event":  "projectiles/enlightened_laser/launch_light"
+                     "sound_event":  "projectiles/enlightened_laser/launch_light",
+                     "damage_mult":  1
                  },
                  {
                      "id":  "giant_slash",
@@ -132,7 +137,8 @@
                      "animation":  "attack",
                      "warning":  "Mahoraga raises the Sword of Extermination high...",
                      "sound_bank":  "data/audio/Desktop/projectiles.bank",
-                     "sound_event":  "player_projectiles/megalaser/launch"
+                     "sound_event":  "player_projectiles/megalaser/launch",
+                     "damage_mult":  1
                  },
                  {
                      "id":  "giant_napalm",
@@ -154,7 +160,8 @@
                      "animation":  "attack",
                      "warning":  "",
                      "sound_bank":  "data/audio/Desktop/explosion.bank",
-                     "sound_event":  "explosions/magic_rocket_big"
+                     "sound_event":  "explosions/magic_rocket_big",
+                     "damage_mult":  1
                  },
                  {
                      "id":  "giant_nuke",
@@ -176,7 +183,8 @@
                      "animation":  "slam_impact",
                      "warning":  "The wheel glows white hot... RUN!",
                      "sound_bank":  "data/audio/Desktop/event_cues.bank",
-                     "sound_event":  "event_cues/angered_the_gods/create"
+                     "sound_event":  "event_cues/angered_the_gods/create",
+                     "damage_mult":  1
                  },
                  {
                      "id":  "electric_punch",
@@ -198,7 +206,8 @@
                      "animation":  "punch",
                      "warning":  "",
                      "sound_bank":  "data/audio/Desktop/explosion.bank",
-                     "sound_event":  "explosions/magic_rocket_big"
+                     "sound_event":  "explosions/magic_rocket_big",
+                     "damage_mult":  1
                  },
                  {
                      "id":  "holy_shower",
@@ -220,7 +229,8 @@
                      "animation":  "adapt",
                      "warning":  "Holy lances begin to fall from above!",
                      "sound_bank":  "data/audio/Desktop/event_cues.bank",
-                     "sound_event":  "event_cues/angered_the_gods/create"
+                     "sound_event":  "event_cues/angered_the_gods/create",
+                     "damage_mult":  1
                  },
                  {
                      "id":  "world_cut",
@@ -242,7 +252,8 @@
                      "animation":  "attack",
                      "warning":  "Mahoraga raises his hand... World Cutting Slash!",
                      "sound_bank":  "data/audio/Desktop/projectiles.bank",
-                     "sound_event":  "player_projectiles/megalaser/launch"
+                     "sound_event":  "player_projectiles/megalaser/launch",
+                     "damage_mult":  1
                  },
                  {
                      "id":  "omega_black_hole",
@@ -264,7 +275,8 @@
                      "animation":  "adapt",
                      "warning":  "A black sun opens above Mahoraga\u0027s head...",
                      "sound_bank":  "data/audio/Desktop/projectiles.bank",
-                     "sound_event":  "player_projectiles/black_hole/create"
+                     "sound_event":  "player_projectiles/black_hole/create",
+                     "damage_mult":  1
                  },
                  {
                      "id":  "earthquake",
@@ -286,7 +298,8 @@
                      "animation":  "slam_impact",
                      "warning":  "Mahoraga strikes the ground... the earth shakes!",
                      "sound_bank":  "data/audio/Desktop/explosion.bank",
-                     "sound_event":  "explosions/magic_rocket_big"
+                     "sound_event":  "explosions/magic_rocket_big",
+                     "damage_mult":  1
                  },
                  {
                      "id":  "magma_torrent",
@@ -308,7 +321,8 @@
                      "animation":  "attack",
                      "warning":  "Mahoraga hurls molten rock!",
                      "sound_bank":  "data/audio/Desktop/explosion.bank",
-                     "sound_event":  "explosions/magic_rocket_big"
+                     "sound_event":  "explosions/magic_rocket_big",
+                     "damage_mult":  1
                  },
                  {
                      "id":  "phantom_step",
@@ -330,7 +344,8 @@
                      "animation":  "attack",
                      "warning":  "",
                      "sound_bank":  "data/audio/Desktop/projectiles.bank",
-                     "sound_event":  "player_projectiles/megalaser/launch"
+                     "sound_event":  "player_projectiles/megalaser/launch",
+                     "damage_mult":  0.5
                  },
                  {
                      "id":  "cursed_wheel",
@@ -352,7 +367,8 @@
                      "animation":  "adapt",
                      "warning":  "The wheel turns black...",
                      "sound_bank":  "data/audio/Desktop/projectiles.bank",
-                     "sound_event":  "projectiles/enlightened_laser/launch_light"
+                     "sound_event":  "projectiles/enlightened_laser/launch_light",
+                     "damage_mult":  1
                  }
              ]
 }

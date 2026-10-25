@@ -1,6 +1,6 @@
 ﻿{
     "sheet":  "dogs",
-    "notes":  "The Divine Dogs (Summon perk MAHORAGA_DIVINE_DOGS). hp and bite_damage in Noita units (25 HP). Phase 1: white; phase 2: white + black, both x world.dog_phase2_mult; phase 3: totality alone (5x the base). bite: in front of the dog within bite_range px, every bite_cooldown_frames.",
+    "notes":  "The Divine Dogs (Summon perk MAHORAGA_DIVINE_DOGS). hp and bite_damage in Noita units (25 HP). Phase 1: white; phase 2: white + black, both x world.dog_phase2_mult; phase 3: totality alone (5x the base). bite: in front of the dog within bite_range px, every bite_cooldown_frames. Dash claw: when an enemy is between bite range and dash_range px away (any direction), the dog dashes at it at dash_speed and claws it for claw_damage, claw_hits times (claw_scale = size of the swipe), then waits dash_cooldown_frames.",
     "columns":  [
                     "id",
                     "name",
@@ -14,7 +14,13 @@
                     "jump_velocity_y",
                     "hitbox_w",
                     "hitbox_h",
-                    "light_rgb"
+                    "light_rgb",
+                    "claw_damage",
+                    "dash_range",
+                    "dash_speed",
+                    "dash_cooldown_frames",
+                    "claw_hits",
+                    "claw_scale"
                 ],
     "rows":  [
                  {
@@ -30,7 +36,13 @@
                      "jump_velocity_y":  -14,
                      "hitbox_w":  10,
                      "hitbox_h":  11,
-                     "light_rgb":  "220,230,255"
+                     "light_rgb":  "220,230,255",
+                     "claw_damage":  1.5,
+                     "dash_range":  140,
+                     "dash_speed":  320,
+                     "dash_cooldown_frames":  90,
+                     "claw_hits":  1,
+                     "claw_scale":  1
                  },
                  {
                      "id":  "black",
@@ -45,7 +57,13 @@
                      "jump_velocity_y":  -14,
                      "hitbox_w":  10,
                      "hitbox_h":  11,
-                     "light_rgb":  "120,140,200"
+                     "light_rgb":  "120,140,200",
+                     "claw_damage":  1.5,
+                     "dash_range":  140,
+                     "dash_speed":  320,
+                     "dash_cooldown_frames":  90,
+                     "claw_hits":  1,
+                     "claw_scale":  1
                  },
                  {
                      "id":  "totality",
@@ -60,7 +78,13 @@
                      "jump_velocity_y":  -16,
                      "hitbox_w":  16,
                      "hitbox_h":  18,
-                     "light_rgb":  "160,230,255"
+                     "light_rgb":  "160,230,255",
+                     "claw_damage":  7.5,
+                     "dash_range":  180,
+                     "dash_speed":  360,
+                     "dash_cooldown_frames":  75,
+                     "claw_hits":  2,
+                     "claw_scale":  2
                  }
              ]
 }

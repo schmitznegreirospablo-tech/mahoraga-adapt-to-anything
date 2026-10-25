@@ -102,11 +102,12 @@ local W = MAHORAGA_WORLD
 local beat_fields = mh_get( me, "defense_fields", 0 ) == 1        -- untag
 local beat_protections = mh_get( me, "defense_protections", 0 ) == 1   -- pierce
 local beat_evasion = mh_get( me, "defense_evasion", 0 ) == 1      -- haste
+local attack_mult = 1   -- the running attack's damage_mult (set once the attack is known, below)
 local function shoot( pid, sx, sy, vx, vy )
 	local p = MAHORAGA_PROJECTILES[ pid ]
 	if beat_evasion then vx, vy = vx * W.haste_speed_mult, vy * W.haste_speed_mult end
 	local e = shoot_projectile( me, p.file, sx, sy, vx, vy )
-	mh_scale_projectile( e, power )
+	mh_scale_projectile( e, power * attack_mult )
 	if e ~= nil and beat_fields then EntityRemoveTag( e, "projectile" ) end   -- repulsion and slowing fields look for this tag
 	if e ~= nil and beat_protections then
 		-- part of the hit also lands as curse damage, which no protection perk covers
@@ -256,6 +257,7 @@ if cur == 0 then
 end
 
 local a = MAHORAGA_ATTACKS[ MAHORAGA_ATTACKS_ORDER[ cur ] ]
+attack_mult = a.damage_mult
 local t = now - started
 local ax, ay = mh_get( me, "aim_x", px ), mh_get( me, "aim_y", py )
 local sx, sy = x, y - 26

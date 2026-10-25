@@ -1,14 +1,15 @@
-Mahoraga: Adapt to Anything - a Noita mod (version 1.4.0)
+Mahoraga: Adapt to Anything - a Noita mod (version 1.4.1)
 
 Mahoraga, the Eight-Handled Wheel, waits in a temple arena carved into the edge wall
 at the far east of the world: cross the desert eastwards until you reach the great
 black wall; the arena doorway sits at ground level. Every parallel world has its own
 arena and its own Mahoraga, tougher the further out you go.
 
-- 8000 health, and hits hard: his weakest hit deals 100 damage, everything else in proportion.
+- 8000 health, and like the game's own bosses he takes only half damage. His weakest hit deals 50
+  damage, everything else in proportion.
 - He adapts to anything: take enough of one kind of damage and his wheel turns and he
   becomes immune to it. Drowning counts too: he needs air until he adapts to it.
-- Every adaptation heals him to full and DOUBLES his max health and all his damage.
+- Every adaptation heals him to full, raises his max health by 50% and all his damage by 50%.
 - Fire burns in rapid ticks, so it takes much longer to adapt to (for him and for you).
 - Destructive attacks: Sword of Extermination slashes that cut through everything that
   isn't indestructible, Crushing Leap, Unstoppable Charge, and (below half health) Wheel Pulse.
@@ -51,7 +52,8 @@ arena and its own Mahoraga, tougher the further out you go.
 
 Divine Dogs perk (in the normal perk pool): press your Divine Dogs key (default H, Options >
 Mod settings) to call the white Divine Dog, and again to send it back. It bites whatever is in
-front of it (200 health). Every 50 kills, or any boss it helps kill, the dogs grow: the black dog
+front of it (200 health) and dashes at enemies farther away, in any direction, to claw them
+(Totality claws twice, with a bigger swipe). Every 25 kills, or any boss it helps kill, the dogs grow: the black dog
 joins (both stronger), then they merge into Divine Dog: Totality (5x the base). If they fall,
 they can be called again after 30 seconds, keeping their growth.
 

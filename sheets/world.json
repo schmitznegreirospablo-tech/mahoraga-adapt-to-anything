@@ -90,7 +90,7 @@
                      "id":  "dog_kills_per_phase",
                      "kind":  "number",
                      "target":  "dogs",
-                     "value":  50,
+                     "value":  25,
                      "detail":  "kills the dogs need for the next phase (any boss kill also counts as enough)"
                  },
                  {

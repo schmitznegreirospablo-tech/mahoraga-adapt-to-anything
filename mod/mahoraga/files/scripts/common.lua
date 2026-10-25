@@ -114,9 +114,9 @@ local function mh_announce( me, how, what, key, count )
 	local x, y = EntityGetTransform( me )
 	GamePlaySound( "data/audio/Desktop/animals.bank", "animals/statue/appear", x, y )
 	EntityLoad( "data/entities/particles/heal_effect.xml", x, y - 20 )
-	local mult = math.floor( MAHORAGA_BOSS.mahoraga.adapt_damage_mult ^ count + 0.5 )
+	local mult = string.format( "%.1f", MAHORAGA_BOSS.mahoraga.adapt_damage_mult ^ count )
 	local who = ( how == "summon" ) and "Your Mahoraga" or "Mahoraga"
-	GamePrint( who .. "'s wheel turns: adapted to " .. what .. "! Fully healed, health and damage doubled (x" .. mult .. ")." )
+	GamePrint( who .. "'s wheel turns: adapted to " .. what .. "! Fully healed, health and damage up (x" .. mult .. ")." )
 	for _, id in ipairs( MAHORAGA_ATTACKS_ORDER ) do
 		local a = MAHORAGA_ATTACKS[ id ]
 		if a.unlock == key then

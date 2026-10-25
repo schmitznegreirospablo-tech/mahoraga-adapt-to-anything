@@ -1,0 +1,6 @@
+<!-- Divine Dog claw swipe: shown where a dash claw lands, rotated to the dash and scaled for Totality -->
+<Entity name="mahoraga_claw" tags="mahoraga_effect">
+	<SpriteComponent image_file="mods/mahoraga/files/gfx/claw.png" offset_x="8" offset_y="8" additive="1" emissive="1" z_index="-150" />
+	<LightComponent radius="30" r="150" g="210" b="255" />
+	<LifetimeComponent lifetime="10" fade_sprites="1" />
+</Entity>

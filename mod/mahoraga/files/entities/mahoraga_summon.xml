@@ -10,8 +10,8 @@
 			sense_creatures="1"
 			attack_ranged_enabled="0"
 			attack_melee_enabled="1"
-			attack_melee_damage_min="8.0"
-			attack_melee_damage_max="8.0"
+			attack_melee_damage_min="4.0"
+			attack_melee_damage_max="4.0"
 			attack_melee_max_distance="22"
 			attack_melee_frames_between="40"
 			can_fly="0"
@@ -32,7 +32,7 @@
 			blood_multiplier="0.5"
 			physics_objects_damage="0"
 			critical_damage_resistance="1">
-			<damage_multipliers drill="1" />
+			<damage_multipliers melee="0.5" projectile="0.5" explosion="0.5" electricity="0.5" fire="0.5" drill="0.5" slice="0.5" ice="0.5" radioactive="0.5" poison="0.5" curse="0.5" holy="0.5" physics_hit="0.5" />
 		</DamageModelComponent>
 		<SpriteComponent image_file="mods/mahoraga/files/gfx/mahoraga.xml" offset_x="0" offset_y="0" />
 		<PathFindingComponent can_jump="1" can_fly="0" jump_speed="160" initial_jump_lob="1" initial_jump_max_distance_x="120" initial_jump_max_distance_y="80" />

@@ -323,7 +323,7 @@ $bx = @"
 			blood_multiplier="0.5"
 			physics_objects_damage="0"
 			critical_damage_resistance="1">
-			<damage_multipliers drill="1" />
+			<damage_multipliers $(('melee','projectile','explosion','electricity','fire','drill','slice','ice','radioactive','poison','curse','holy','physics_hit') | ForEach-Object { "$_=`"$($b.damage_taken_mult)`"" }) />
 		</DamageModelComponent>
 		<SpriteComponent image_file="$($b.sprite)" offset_x="0" offset_y="0" />
 		<PathFindingComponent can_jump="1" can_fly="0" jump_speed="160" initial_jump_lob="1" initial_jump_max_distance_x="120" initial_jump_max_distance_y="80" />

@@ -1,4 +1,4 @@
-﻿{
+{
     "sheet":  "perks",
     "columns":  [
                     "id",
@@ -46,7 +46,7 @@
                  {
                      "id":  "MAHORAGA_DIVINE_DOGS",
                      "ui_name":  "Divine Dogs",
-                     "ui_description":  "Press your Divine Dogs key (Mod settings) to call the white Divine Dog, and again to send it back. Every 50 kills or any boss kill it grows: the black dog joins, then both merge into Totality.",
+                     "ui_description":  "Press your Divine Dogs key (Mod settings) to call the white Divine Dog, and again to send it back. It bites and dashes at enemies to claw them. Every 25 kills or any boss kill it grows: the black dog joins, then both merge into Totality.",
                      "ui_icon":  "mods/mahoraga/files/gfx/cao_perk_ui.png",
                      "perk_icon":  "mods/mahoraga/files/gfx/cao_perk_item.png",
                      "stackable":  false,
