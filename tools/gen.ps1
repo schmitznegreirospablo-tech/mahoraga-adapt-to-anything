@@ -6,7 +6,7 @@ $root = Split-Path $PSScriptRoot -Parent
 $mod = Join-Path $root 'mod\mahoraga'
 function Sheet($n) { Get-Content (Join-Path $root "sheets\$n.json") -Raw -Encoding UTF8 | ConvertFrom-Json }
 $S = @{}
-foreach ($n in 'boss','attacks','projectiles','adaptation','perks','world','dogs') { $S[$n] = Sheet $n }
+foreach ($n in 'boss','attacks','projectiles','adaptation','perks','world','dogs','defenses') { $S[$n] = Sheet $n }
 # Mahoraga's sprite animations (sheet drawn in Aseprite: 64x56 frames, 8 per row, one row per animation;
 # feet at x=24 on the last row, so the body keeps the old 32x44 size). name, row, frames, wait, loop, first column.
 # The script replays charge/adapt itself, so only the AI's own animations loop.
@@ -33,7 +33,7 @@ foreach ($n in $S.Keys) {
   }
 }
 # empty strings are allowed only where a column means "none"
-$allowEmpty = @{ 'projectiles' = @('sprite','explosion_sprite','load_entities','cell_material'); 'attacks' = @('unlock','warning') }
+$allowEmpty = @{ 'projectiles' = @('sprite','explosion_sprite','load_entities','cell_material'); 'attacks' = @('unlock','warning'); 'adaptation' = @('aliases'); 'defenses' = @('perks') }
 foreach ($n in $S.Keys) { foreach ($row in $S[$n].rows) { foreach ($col in $S[$n].columns) {
   if ($row.$col -is [string] -and $row.$col -eq '' -and -not ($allowEmpty[$n] -contains $col)) { $problems.Add("$n/$($row.($S[$n].columns[0])): '$col' is blank") }
 }}}
@@ -42,13 +42,20 @@ foreach ($a in $S.attacks.rows) { if ($projIds -notcontains $a.projectile) { $pr
 $perkIds = $S.perks.rows | ForEach-Object { $_.id }
 foreach ($b in $S.boss.rows) { foreach ($rp in ($b.reward_perk -split ',')) { if ($perkIds -notcontains $rp) { $problems.Add("boss/$($b.id): reward_perk '$rp' not in perks") } } }
 foreach ($p in $S.perks.rows) { if ($p.adaptation_source -ne 'adaptation.player') { $problems.Add("perks/$($p.id): adaptation_source must be adaptation.player") } }
-$behaviors = 'fan_at_target','leap_then_blast','dash_digging','ring','lob_at_target','blast_at_self','rain','cut_storm','hold_above','earthquake'
+$behaviors = 'fan_at_target','leap_then_blast','dash_digging','ring','lob_at_target','blast_at_self','rain','cut_storm','hold_above','earthquake','blink_strike'
 foreach ($a in $S.attacks.rows) { if ($behaviors -notcontains $a.behavior) { $problems.Add("attacks/$($a.id): behavior '$($a.behavior)' has no implementation") } }
 $animNames = $bossAnims | ForEach-Object { $_[0] }
 foreach ($a in $S.attacks.rows) { if ($animNames -notcontains $a.animation) { $problems.Add("attacks/$($a.id): animation '$($a.animation)' is not in the boss sprite") } }
-$fields = 'melee','projectile','explosion','electricity','fire','drill','slice','ice','healing','physics_hit','radioactive','poison','overeating','curse','holy','drowning'
+$fields = 'melee','projectile','explosion','electricity','fire','drill','slice','ice','healing','physics_hit','radioactive','poison','overeating','curse','holy','drowning','material'
 $adaptTypes = $S.adaptation.rows | ForEach-Object { $_.type }
-foreach ($a in $S.attacks.rows) { if ($a.unlock -and $adaptTypes -notcontains $a.unlock) { $problems.Add("attacks/$($a.id): unlock '$($a.unlock)' is not an adaptation type") } }
+$defenseIds = $S.defenses.rows | ForEach-Object { $_.id }
+foreach ($a in $S.attacks.rows) {
+  if (-not $a.unlock) { continue }
+  if ($a.unlock -like 'defense:*') { if ($defenseIds -notcontains $a.unlock.Substring(8)) { $problems.Add("attacks/$($a.id): unlock '$($a.unlock)' is not a defense") } }
+  elseif ($adaptTypes -notcontains $a.unlock) { $problems.Add("attacks/$($a.id): unlock '$($a.unlock)' is not an adaptation type") }
+}
+$counters = 'untag','break_shield','pierce','sense','haste'
+foreach ($d in $S.defenses.rows) { if ($counters -notcontains $d.counter) { $problems.Add("defenses/$($d.id): counter '$($d.counter)' has no implementation") } }
 foreach ($r in $S.adaptation.rows) { if ($fields -notcontains $r.field) { $problems.Add("adaptation/$($r.type): '$($r.field)' is not a Noita damage multiplier") } }
 foreach ($p in $S.projectiles.rows) { if ($fields -notcontains $p.damage_type) { $problems.Add("projectiles/$($p.id): damage_type '$($p.damage_type)' unknown") } }
 # files the mod ships must exist; vanilla files are read from the player's game
@@ -103,6 +110,7 @@ Write-Out (Join-Path $gen 'world_data.lua') ($hdr + ($wl -join "`n"))
 
 # dog rows -> dog_data.lua + entity XMLs (the Divine Dogs perk)
 Write-Out (Join-Path $gen 'dog_data.lua') ($hdr + (LuaTable 'MAHORAGA_DOGS' $S.dogs 'id'))
+Write-Out (Join-Path $gen 'defense_data.lua') ($hdr + (LuaTable 'MAHORAGA_DEFENSES' $S.defenses 'id'))
 foreach ($d in $S.dogs.rows) {
   $rgb = $d.light_rgb -split ','
   $hw = $d.hitbox_w / 2

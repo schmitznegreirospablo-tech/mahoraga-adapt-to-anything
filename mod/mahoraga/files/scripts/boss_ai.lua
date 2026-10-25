@@ -98,10 +98,29 @@ end
 -- attack animations (attacks sheet, animation column) go back to "stand" when they end, so the AI's walk/jump take over again
 local function anim( name ) GamePlayAnimation( me, name, 10, "stand", 0 ) end
 local power = mh_power( me )
+local W = MAHORAGA_WORLD
+local beat_fields = mh_get( me, "defense_fields", 0 ) == 1        -- untag
+local beat_protections = mh_get( me, "defense_protections", 0 ) == 1   -- pierce
+local beat_evasion = mh_get( me, "defense_evasion", 0 ) == 1      -- haste
 local function shoot( pid, sx, sy, vx, vy )
 	local p = MAHORAGA_PROJECTILES[ pid ]
+	if beat_evasion then vx, vy = vx * W.haste_speed_mult, vy * W.haste_speed_mult end
 	local e = shoot_projectile( me, p.file, sx, sy, vx, vy )
 	mh_scale_projectile( e, power )
+	if e ~= nil and beat_fields then EntityRemoveTag( e, "projectile" ) end   -- repulsion and slowing fields look for this tag
+	if e ~= nil and beat_protections then
+		-- part of the hit also lands as curse damage, which no protection perk covers
+		local pc = EntityGetFirstComponentIncludingDisabled( e, "ProjectileComponent" )
+		if pc ~= nil then
+			local total = ( ComponentGetValue2( pc, "damage" ) or 0 ) + ( ComponentObjectGetValue2( pc, "config_explosion", "damage" ) or 0 )
+			for _, t in ipairs( MAHORAGA_ADAPT_ORDER ) do
+				local fld = MAHORAGA_ADAPT[t].field
+				if not MH_NOT_PROJECTILE_FIELD[ fld ] and fld ~= "curse" then total = total + ( ComponentObjectGetValue2( pc, "damage_by_type", fld ) or 0 ) end
+			end
+			local curse = ComponentObjectGetValue2( pc, "damage_by_type", "curse" ) or 0
+			ComponentObjectSetValue2( pc, "damage_by_type", "curse", curse + total * W.pierce_curse_frac )
+		end
+	end
 	if summon and e ~= nil then
 		local pc = EntityGetFirstComponentIncludingDisabled( e, "ProjectileComponent" )
 		if pc ~= nil then
@@ -124,7 +143,39 @@ local function shoot( pid, sx, sy, vx, vy )
 	end
 	return e
 end
-local function unlocked( a ) return a.unlock == "" or mh_get( me, "adapted_" .. a.unlock, 0 ) == 1 end
+-- area damage dealt by script (punch, earthquake): with pierce, part of it also lands as curse damage
+local function hurt( e, amount, dtype, msg, ix, iy )
+	EntityInflictDamage( e, amount, dtype, msg, "NORMAL", ix, iy, me )
+	if beat_protections then EntityInflictDamage( e, amount * W.pierce_curse_frac, "DAMAGE_CURSE", "$damage_curse", "NONE", 0, 0, me ) end
+end
+local function unlocked( a )
+	if a.unlock == "" then return true end
+	if string.sub( a.unlock, 1, 8 ) == "defense:" then return mh_get( me, "defense_" .. string.sub( a.unlock, 9 ), 0 ) == 1 end
+	return mh_get( me, "adapted_" .. a.unlock, 0 ) == 1
+end
+
+-- Adapting to defenses: after each attack he checks whether the player lost any health. When world.defense_futile_attacks
+-- attacks in a row did nothing, he studies how (defenses sheet). Only the boss, against the player.
+if not summon then
+	local judge_at = mh_get( me, "judge_at", 0 )
+	if judge_at > 0 and now >= judge_at then
+		mh_set( me, "judge_at", 0 )
+		local pdmc = EntityGetFirstComponent( player, "DamageModelComponent" )
+		if pdmc ~= nil then
+			if ComponentGetValue2( pdmc, "hp" ) >= mh_get( me, "judge_hp", 0 ) - 0.0001 then
+				local futile = mh_get( me, "futile", 0 ) + 1
+				mh_set( me, "futile", futile )
+				if futile >= W.defense_futile_attacks then
+					mh_set( me, "futile", 0 )
+					mh_adapt_to_defense( me, player )
+					return
+				end
+			else
+				mh_set( me, "futile", 0 )
+			end
+		end
+	end
+end
 -- Your Mahoraga's blasts can't hurt the player (summon_blast.lua), but fire burns anyone:
 -- he holds back Giant Napalm while the player is inside its fire circle.
 local function safe_for_player( a )
@@ -162,6 +213,19 @@ local function start_attack( pick )
 	local a = MAHORAGA_ATTACKS[ MAHORAGA_ATTACKS_ORDER[ pick ] ]
 	local cd = a.cooldown_frames
 	if phase == 2 then cd = cd * B.phase2_cooldown_mult end
+	if beat_evasion then cd = cd * W.haste_cooldown_mult end
+	if not summon then
+		-- remember the player's health to judge this attack afterwards; adapted to shields, every attack drains them
+		local pdmc = EntityGetFirstComponent( player, "DamageModelComponent" )
+		if pdmc ~= nil then mh_set( me, "judge_hp", ComponentGetValue2( pdmc, "hp" ) ); mh_set( me, "judging", 1 ) end
+		if mh_get( me, "defense_shield", 0 ) == 1 then
+			for _, child in ipairs( EntityGetAllChildren( player ) or {} ) do
+				for _, sc in ipairs( EntityGetComponentIncludingDisabled( child, "EnergyShieldComponent" ) or {} ) do
+					ComponentSetValue2( sc, "energy", 0 )
+				end
+			end
+		end
+	end
 	mh_set( me, "ready_" .. a.id, now + cd )
 	mh_set( me, "attack", pick )
 	mh_set( me, "attack_start", now )
@@ -198,6 +262,10 @@ local sx, sy = x, y - 26
 
 local function finish()
 	mh_set( me, "attack", 0 )
+	if mh_get( me, "judging", 0 ) == 1 then
+		mh_set( me, "judging", 0 )
+		mh_set( me, "judge_at", now + MAHORAGA_WORLD.defense_check_frames )
+	end
 	set_ai( true )
 end
 
@@ -275,9 +343,12 @@ elseif a.behavior == "lob_at_target" then
 		anim( a.animation )
 		local p = MAHORAGA_PROJECTILES[ a.projectile ]
 		local T = 0.9
-		local vx = ( ax - sx ) / T
-		local vy = ( ay - sy ) / T - 0.5 * p.gravity_y * T
-		shoot( a.projectile, sx, sy, vx, vy )
+		for i = 1, a.count do
+			local tx = ax + ( i - ( a.count + 1 ) * 0.5 ) * a.spread_deg   -- spread_deg is px apart for throws
+			local vx = ( tx - sx ) / T
+			local vy = ( ay - sy ) / T - 0.5 * p.gravity_y * T
+			shoot( a.projectile, sx, sy, vx, vy )
+		end
 	end
 	if at > 12 then finish() end
 
@@ -295,7 +366,7 @@ elseif a.behavior == "blast_at_self" then
 			local dtype = "DAMAGE_" .. string.upper( p.damage_type )
 			for _, e in ipairs( EntityGetInRadiusWithTag( bx, by, p.explosion_radius, "mortal" ) or {} ) do
 				if e ~= me and not ( summon and mh_is_ally( e, player ) ) then
-					EntityInflictDamage( e, p.damage * power, dtype, MAHORAGA_ADAPT[ p.damage_type ].message_key, "NORMAL", dir * 40, -30, me )
+					hurt( e, p.damage * power, dtype, MAHORAGA_ADAPT[ p.damage_type ].message_key, dir * 40, -30 )
 					if p.damage_type == "electricity" then LoadGameEffectEntityTo( e, "data/entities/misc/effect_electricity.xml" ) end
 				end
 			end
@@ -364,12 +435,31 @@ elseif a.behavior == "earthquake" then
 			if e ~= me and not ( summon and mh_is_ally( e, player ) ) then
 				local ex, ey = EntityGetTransform( e )
 				if math.abs( ey - y ) < 60 then
-					EntityInflictDamage( e, p.damage * power, "DAMAGE_PHYSICS_HIT", MAHORAGA_ADAPT.physics_hit.message_key, "NORMAL", 0, -60, me )
+					hurt( e, p.damage * power, "DAMAGE_PHYSICS_HIT", MAHORAGA_ADAPT.physics_hit.message_key, 0, -60 )
 				end
 			end
 		end
 	end
 	if at >= a.repeats * a.repeat_gap_frames then finish() end
+
+elseif a.behavior == "blink_strike" then
+	if at == 0 then
+		local side = ( ax >= x ) and 1 or -1            -- he comes out on the far side of the target
+		local nx, ny = ax + side * a.offset_x, ay + 6
+		EntityLoad( "data/entities/particles/poof_white_appear.xml", x, y - 20 )
+		EntitySetTransform( me, nx, ny, 0, -side, 1 )
+		EntityLoad( "data/entities/particles/poof_white_appear.xml", nx, ny - 20 )
+		sound( a )
+		anim( a.animation )
+		local p = MAHORAGA_PROJECTILES[ a.projectile ]
+		local bx, by = nx, ny - 26
+		local base = math.atan2( ay - by, ax - bx )
+		for i = 1, a.count do
+			local off = ( a.count > 1 ) and ( ( ( i - 1 ) / ( a.count - 1 ) - 0.5 ) * math.rad( a.spread_deg ) ) or 0
+			shoot( a.projectile, bx, by, math.cos( base + off ) * p.speed, math.sin( base + off ) * p.speed )
+		end
+	end
+	if at > 14 then finish() end
 
 elseif a.behavior == "rain" then
 	if at == 0 then

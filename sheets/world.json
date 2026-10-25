@@ -141,6 +141,41 @@
                      "target":  "escape",
                      "value":  0.25,
                      "detail":  "escape mode: the chasing Mahoraga has this share of the normal health and damage (the one in his arena afterwards is normal)"
+                 },
+                 {
+                     "id":  "defense_futile_attacks",
+                     "kind":  "number",
+                     "target":  "defense",
+                     "value":  4,
+                     "detail":  "attacks in a row that leave the player unharmed before Mahoraga adapts to their defense"
+                 },
+                 {
+                     "id":  "defense_check_frames",
+                     "kind":  "number",
+                     "target":  "defense",
+                     "value":  45,
+                     "detail":  "frames after an attack ends before he judges whether it hurt"
+                 },
+                 {
+                     "id":  "haste_cooldown_mult",
+                     "kind":  "number",
+                     "target":  "defense",
+                     "value":  0.7,
+                     "detail":  "adapted to evasion: attack cooldowns x this"
+                 },
+                 {
+                     "id":  "haste_speed_mult",
+                     "kind":  "number",
+                     "target":  "defense",
+                     "value":  1.3,
+                     "detail":  "adapted to evasion: projectile speed x this"
+                 },
+                 {
+                     "id":  "pierce_curse_frac",
+                     "kind":  "number",
+                     "target":  "defense",
+                     "value":  0.5,
+                     "detail":  "adapted to protections: share of each attack\u0027s damage also dealt as curse damage"
                  }
              ]
 }

@@ -1,4 +1,4 @@
-Mahoraga: Adapt to Anything - a Noita mod (version 1.3.2)
+Mahoraga: Adapt to Anything - a Noita mod (version 1.4.0)
 
 Mahoraga, the Eight-Handled Wheel, waits in a temple arena carved into the edge wall
 at the far east of the world: cross the desert eastwards until you reach the great
@@ -21,7 +21,19 @@ arena and its own Mahoraga, tougher the further out you go.
   adapted to slicing     -> World Cutting Slash: about 3 seconds of huge white cuts across the whole area
   adapted to curses      -> Omega Black Hole: a giant black hole hangs above his head for 10 seconds
   adapted to impacts     -> Earthquake: the ground shakes and cracks, hitting everything standing near him
+  adapted to materials   -> Magma Torrent: three globs of molten rock that leave pools of lava
   (the Electrocute Giant Punch is now a much bigger electric explosion)
+- He adapts to every curse (the sun, the cursed rock, black holes, cursed hits...) and to harmful
+  materials (lava, acid, toxic gas...).
+- He adapts to your defenses: when 4 of his attacks in a row leave you unharmed, he studies why
+  and overcomes it (each one is a full adaptation, with healing and doubling):
+  projectile repulsion/slowing fields -> his attacks ignore them
+  energy shields                      -> every attack drains your shields
+  protections and immunities          -> part of every hit lands as curse damage
+                                         (and he learns Cursed Wheel: rings of curse orbs)
+  invisibility                        -> he no longer needs to see you
+  nothing else explains it (evasion)  -> faster attacks and projectiles
+                                         (and he learns Phantom Step: he blinks behind you and slashes)
 - Some adaptations change him too: adapted to projectiles he raises two energy shields
   (like Skoude's); adapted to drowning he swims freely and fast.
 - Rewards (take both): the perks

@@ -1,9 +1,9 @@
 # Mahoraga: Adapt to Anything (Noita mod)
 
-A Mahoraga-inspired boss (8000 HP) waits in a temple arena at the far east edge of every Noita world. He adapts to every kind of harm (even drowning). Each adaptation heals him to full and doubles his health and damage, and some of them teach him new techniques: Giant Slash, Giant Napalm, Giant Nuke, Electrocute Giant Punch, Holy Shower and World Cutting Slash. Beat him for two perks: **Adapt to Anything**, and **Summon Mahoraga**, which calls your own Mahoraga (sharing your adaptations) with a key you pick in Options > Mod settings. New in 1.3: the **Escape from Mahoraga** mode (he digs his way to you from the start of the run), the **Divine Dogs** perk (white dog, then both dogs, then Totality as they kill), and new adaptations: Omega Black Hole (curses), Earthquake (impacts), energy shields (projectiles) and swimming (drowning).
+A Mahoraga-inspired boss (8000 HP) waits in a temple arena at the far east edge of every Noita world. He adapts to every kind of harm (even drowning). Each adaptation heals him to full and doubles his health and damage, and some of them teach him new techniques: Giant Slash, Giant Napalm, Giant Nuke, Electrocute Giant Punch, Holy Shower and World Cutting Slash. Beat him for two perks: **Adapt to Anything**, and **Summon Mahoraga**, which calls your own Mahoraga (sharing your adaptations) with a key you pick in Options > Mod settings. New in 1.3: the **Escape from Mahoraga** mode (he digs his way to you from the start of the run), the **Divine Dogs** perk (white dog, then both dogs, then Totality as they kill), and new adaptations: Omega Black Hole (curses), Earthquake (impacts), energy shields (projectiles) and swimming (drowning). New in 1.4: he adapts to every curse source and to harmful materials (lava, acid...), and to your **defenses** when his attacks stop working (projectile fields, shields, protections, invisibility, evasion), learning Magma Torrent, Phantom Step and Cursed Wheel.
 
 - Steam Workshop: https://steamcommunity.com/sharedfiles/filedetails/?id=3820434703
-- Current version: 1.3.2
+- Current version: 1.4.0
 
 ## Layout
 | Folder | What it is |
@@ -13,6 +13,7 @@ A Mahoraga-inspired boss (8000 HP) waits in a temple arena at the far east edge 
 | `tools/gen.ps1` | Generates `mod/mahoraga/files/generated/*`, the projectile/boss XMLs, perk list and translations from `sheets/`. |
 | `art/` | Aseprite sources: the Lua scripts that draw Mahoraga and the Divine Dogs, and their `.aseprite` files. |
 | `tools/*.cs` | Small helpers: `luacheck` (Lua syntax check with the game's lua51.dll), `wakunpack` (unpack `data/data.wak`), `makeart` (sprites), `wincap` (window capture). |
+| `sheets/defenses.json` | The defenses Mahoraga can adapt to when his attacks stop working, and his counter to each. |
 | `sheets/dogs.json` | The Divine Dogs: stats per dog; phases and escape mode numbers are in `sheets/world.json`. |
 | `workshop/` | Steam Workshop metadata (`workshop.xml`, item id, preview image). |
 

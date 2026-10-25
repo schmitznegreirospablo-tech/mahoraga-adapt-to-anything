@@ -14,7 +14,7 @@ function damage_received( damage, message, entity_thats_responsible, is_fatal, p
 		mh_set( me, "hurt_anim_ready", now + 30 )
 		GamePlayAnimation( me, "hurt", 5, "stand", 0 )
 	end
-	local t = mh_damage_type( message, projectile_thats_responsible )
+	local t = mh_damage_type( message, projectile_thats_responsible, me )
 	if t == nil then
 		print( "[mahoraga] unknown damage message: " .. tostring( message ) )
 		return

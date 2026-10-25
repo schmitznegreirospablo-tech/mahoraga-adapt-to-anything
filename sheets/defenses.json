@@ -1,0 +1,54 @@
+﻿{
+    "sheet":  "defenses",
+    "notes":  "When world.defense_futile_attacks of his attacks in a row leave the player unharmed, Mahoraga studies how: the first row the player has (any of perks picked, or immunity = a full Adapt to Anything immunity) and he has not adapted to yet. evasion has no perks: it is what is left when nothing else explains it. Each one is a full adaptation (heal, x2 health and damage). counter: untag = his projectiles lose the \"projectile\" tag that repulsion/slowing fields look for; break_shield = every attack empties the player\u0027s energy shields; pierce = his damage also comes as curse damage (world.pierce_curse_frac); sense = he no longer needs to see the player; haste = shorter cooldowns and faster projectiles.",
+    "columns":  [
+                    "id",
+                    "display_name",
+                    "perks",
+                    "immunity",
+                    "counter",
+                    "message"
+                ],
+    "rows":  [
+                 {
+                     "id":  "fields",
+                     "display_name":  "projectile fields",
+                     "perks":  "PROJECTILE_REPULSION,PROJECTILE_REPULSION_SECTOR,PROJECTILE_SLOW_FIELD",
+                     "immunity":  false,
+                     "counter":  "untag",
+                     "message":  "Your fields no longer push or slow his attacks."
+                 },
+                 {
+                     "id":  "shield",
+                     "display_name":  "energy shields",
+                     "perks":  "SHIELD",
+                     "immunity":  false,
+                     "counter":  "break_shield",
+                     "message":  "Every blow now shatters your shield."
+                 },
+                 {
+                     "id":  "protections",
+                     "display_name":  "protections and immunities",
+                     "perks":  "PROTECTION_FIRE,PROTECTION_RADIOACTIVITY,PROTECTION_EXPLOSION,PROTECTION_MELEE,PROTECTION_ELECTRICITY,PROTECTION_FREEZE",
+                     "immunity":  true,
+                     "counter":  "pierce",
+                     "message":  "His attacks now pierce protections with cursed power."
+                 },
+                 {
+                     "id":  "invisibility",
+                     "display_name":  "invisibility",
+                     "perks":  "INVISIBILITY",
+                     "immunity":  false,
+                     "counter":  "sense",
+                     "message":  "He no longer needs to see you."
+                 },
+                 {
+                     "id":  "evasion",
+                     "display_name":  "your evasion",
+                     "perks":  "",
+                     "immunity":  false,
+                     "counter":  "haste",
+                     "message":  "He strikes faster, and his attacks fly faster."
+                 }
+             ]
+}

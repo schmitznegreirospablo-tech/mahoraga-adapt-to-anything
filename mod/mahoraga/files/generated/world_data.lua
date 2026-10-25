@@ -14,4 +14,9 @@ MAHORAGA_WORLD = {
   escape_fight_distance = 300,
   escape_run_speed = 2,
   escape_power_mult = 0.25,
+  defense_futile_attacks = 4,
+  defense_check_frames = 45,
+  haste_cooldown_mult = 0.7,
+  haste_speed_mult = 1.3,
+  pierce_curse_frac = 0.5,
 }

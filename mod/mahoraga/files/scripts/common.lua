@@ -4,6 +4,7 @@ dofile_once("mods/mahoraga/files/generated/attack_data.lua")
 dofile_once("mods/mahoraga/files/generated/projectile_data.lua")
 dofile_once("mods/mahoraga/files/generated/adaptation_data.lua")
 dofile_once("mods/mahoraga/files/generated/world_data.lua")
+dofile_once("mods/mahoraga/files/generated/defense_data.lua")
 
 -- Per-entity values kept in VariableStorageComponents so they survive save/load.
 function mh_get( entity_id, name, default )
@@ -27,19 +28,28 @@ function mh_set( entity_id, name, value )
 	EntityAddComponent2( entity_id, "VariableStorageComponent", { name = name, value_float = value } )
 end
 
--- Which adaptation row a hit belongs to: from Noita's damage message first,
--- then from the strongest damage type of the projectile that caused it.
-local translated = nil
-function mh_damage_type( message, projectile_id )
+-- Fields that are not damage_by_type entries of a projectile (they work another way).
+MH_NOT_PROJECTILE_FIELD = { projectile = true, drowning = true, material = true }
+
+-- Which adaptation row a hit belongs to: from Noita's damage message (or one of its aliases: most curse sources
+-- name themselves, like "$damage_sun"), then from the strongest damage type of the projectile that caused it,
+-- then from the frame the game last dealt material (lava, acid...) or physics damage to the victim.
+local by_message, translated = nil, nil
+function mh_damage_type( message, projectile_id, victim )
 	if message ~= nil and message ~= "" then
-		for _, t in ipairs( MAHORAGA_ADAPT_ORDER ) do
-			if message == MAHORAGA_ADAPT[t].message_key then return t end
+		if by_message == nil then
+			by_message = {}
+			for _, t in ipairs( MAHORAGA_ADAPT_ORDER ) do
+				local row = MAHORAGA_ADAPT[t]
+				by_message[ row.message_key ] = t
+				for alias in string.gmatch( row.aliases, "[^,]+" ) do by_message[ alias ] = t end
+			end
 		end
+		if by_message[ message ] then return by_message[ message ] end
+		if string.sub( message, 1, 5 ) == "$mat_" then return "material" end
 		if translated == nil then
 			translated = {}
-			for _, t in ipairs( MAHORAGA_ADAPT_ORDER ) do
-				translated[ GameTextGetTranslatedOrNot( MAHORAGA_ADAPT[t].message_key ) ] = t
-			end
+			for key, t in pairs( by_message ) do translated[ GameTextGetTranslatedOrNot( key ) ] = t end
 		end
 		if translated[ message ] then return translated[ message ] end
 	end
@@ -51,17 +61,24 @@ function mh_damage_type( message, projectile_id )
 			if base > best_v then best, best_v = "projectile", base end
 			for _, t in ipairs( MAHORAGA_ADAPT_ORDER ) do
 				local f = MAHORAGA_ADAPT[t].field
-				if f ~= "projectile" then
+				if not MH_NOT_PROJECTILE_FIELD[ f ] then
 					local v = ComponentObjectGetValue2( pc, "damage_by_type", f ) or 0
 					if v > best_v then best, best_v = t, v end
 				end
 			end
-			return best
+			if best ~= nil then return best end
+		end
+	end
+	if victim ~= nil then
+		local dmc = EntityGetFirstComponent( victim, "DamageModelComponent" )
+		if dmc ~= nil then
+			local now = GameGetFrameNum()
+			if ComponentGetValue2( dmc, "mLastMaterialDamageFrame" ) >= now - 1 then return "material" end
+			if ComponentGetValue2( dmc, "mPhysicsDamageLastFrame" ) >= now - 1 then return "physics_hit" end
 		end
 	end
 	return nil
 end
-
 -- How hard Mahoraga hits: every damage value in the sheets x damage_scale, doubled (adapt_damage_mult) per adaptation,
 -- x his own power_mult (escape mode's chaser: world.escape_power_mult).
 function mh_power( boss )
@@ -71,46 +88,89 @@ end
 
 function mh_is_summon( e ) return mh_get( e, "summon", 0 ) == 1 end
 
--- The wheel turns: immune to type t from now on, fully healed, max HP and all damage doubled.
--- how: "boss" (his fight messages), "summon" (your Mahoraga, announced) or "quiet".
-function mh_apply_adaptation( me, t, how )
-	local row = MAHORAGA_ADAPT[ t ]
+-- The wheel turns (any adaptation): fully healed, max HP and all damage doubled. Returns the new adaptation count.
+function mh_wheel_turn( me )
 	local B = MAHORAGA_BOSS.mahoraga
 	local dmc = EntityGetFirstComponent( me, "DamageModelComponent" )
-	if dmc == nil or mh_get( me, "adapted_" .. t, 0 ) == 1 then return end
 	local count = mh_get( me, "adapt_count", 0 ) + 1
-	mh_set( me, "adapted_" .. t, 1 )
 	mh_set( me, "adapt_count", count )
 	mh_set( me, "wheel_spin", GameGetFrameNum() )
 	GamePlayAnimation( me, "adapt", 20, "stand", 0 )   -- glows for as long as the wheel turns (~36 frames)
-	if t == "drowning" then
-		ComponentSetValue2( dmc, "air_needed", false )
-	else
-		ComponentObjectSetValue2( dmc, "damage_multipliers", row.field, row.boss_result_mult )
+	if dmc ~= nil then
+		local new_max = ComponentGetValue2( dmc, "max_hp" ) * B.adapt_hp_mult
+		ComponentSetValue2( dmc, "max_hp", new_max )
+		ComponentSetValue2( dmc, "hp", new_max )
 	end
-	mh_adaptation_bonus( me, t )
-	local new_max = ComponentGetValue2( dmc, "max_hp" ) * B.adapt_hp_mult
-	ComponentSetValue2( dmc, "max_hp", new_max )
-	ComponentSetValue2( dmc, "hp", new_max )
 	local ai = EntityGetFirstComponentIncludingDisabled( me, "AnimalAIComponent" )
 	if ai ~= nil then
 		ComponentSetValue2( ai, "attack_melee_damage_min", B.contact_damage * mh_power( me ) )
 		ComponentSetValue2( ai, "attack_melee_damage_max", B.contact_damage * mh_power( me ) )
 	end
-	if how == "quiet" then return end
+	return count
+end
 
+-- Announce a turn of the wheel and the techniques that unlock with key (an adaptation type or "defense:<id>").
+local function mh_announce( me, how, what, key, count )
 	local x, y = EntityGetTransform( me )
 	GamePlaySound( "data/audio/Desktop/animals.bank", "animals/statue/appear", x, y )
 	EntityLoad( "data/entities/particles/heal_effect.xml", x, y - 20 )
-	local mult = math.floor( B.adapt_damage_mult ^ count + 0.5 )
+	local mult = math.floor( MAHORAGA_BOSS.mahoraga.adapt_damage_mult ^ count + 0.5 )
 	local who = ( how == "summon" ) and "Your Mahoraga" or "Mahoraga"
-	GamePrint( who .. "'s wheel turns: adapted to " .. row.display_name .. "! Fully healed, health and damage doubled (x" .. mult .. ")." )
+	GamePrint( who .. "'s wheel turns: adapted to " .. what .. "! Fully healed, health and damage doubled (x" .. mult .. ")." )
 	for _, id in ipairs( MAHORAGA_ATTACKS_ORDER ) do
 		local a = MAHORAGA_ATTACKS[ id ]
-		if a.unlock == t then
-			GamePrintImportant( who .. " learns " .. a.name, "Adapted to " .. row.display_name .. ", the wheel grants a new technique." )
+		if a.unlock == key then
+			GamePrintImportant( who .. " learns " .. a.name, "Adapted to " .. what .. ", the wheel grants a new technique." )
 		end
 	end
+end
+
+-- Adapted to a kind of harm: immune to it from now on, and the wheel turns.
+-- how: "boss" (his fight messages), "summon" (your Mahoraga, announced) or "quiet".
+function mh_apply_adaptation( me, t, how )
+	local row = MAHORAGA_ADAPT[ t ]
+	local dmc = EntityGetFirstComponent( me, "DamageModelComponent" )
+	if dmc == nil or mh_get( me, "adapted_" .. t, 0 ) == 1 then return end
+	mh_set( me, "adapted_" .. t, 1 )
+	if t == "drowning" then
+		ComponentSetValue2( dmc, "air_needed", false )
+	elseif t == "material" then
+		ComponentSetValue2( dmc, "materials_damage", false )
+	else
+		ComponentObjectSetValue2( dmc, "damage_multipliers", row.field, row.boss_result_mult )
+	end
+	mh_adaptation_bonus( me, t )
+	local count = mh_wheel_turn( me )
+	if how ~= "quiet" then mh_announce( me, how, row.display_name, t, count ) end
+end
+
+-- Does the player have this defense (defenses sheet)? Any of its perks, or for "immunity" rows a full
+-- Adapt to Anything immunity.
+function mh_player_has_defense( player, d )
+	for id in string.gmatch( d.perks, "[^,]+" ) do
+		if GameHasFlagRun( "PERK_PICKED_" .. id ) then return true end
+	end
+	if d.immunity then
+		for _, t in ipairs( MAHORAGA_ADAPT_ORDER ) do
+			if mh_get( player, "padapt_steps_" .. t, 0 ) >= MAHORAGA_ADAPT[t].player_max_steps then return true end
+		end
+	end
+	return d.perks == "" and not d.immunity   -- evasion: whatever is left
+end
+
+-- His attacks keep doing nothing: he adapts to the first defense of the player he has not beaten yet.
+function mh_adapt_to_defense( me, player )
+	for _, id in ipairs( MAHORAGA_DEFENSES_ORDER ) do
+		local d = MAHORAGA_DEFENSES[ id ]
+		if mh_get( me, "defense_" .. id, 0 ) == 0 and mh_player_has_defense( player, d ) then
+			mh_set( me, "defense_" .. id, 1 )
+			local count = mh_wheel_turn( me )
+			GamePrintImportant( "Mahoraga adapts to " .. d.display_name, d.message )
+			mh_announce( me, "boss", d.display_name, "defense:" .. id, count )
+			return id
+		end
+	end
+	return nil
 end
 
 -- Your Mahoraga takes every adaptation the player has (Adapt to Anything: each kind of harm with at least
@@ -147,7 +207,7 @@ function mh_scale_projectile( pid, mult )
 	ComponentSetValue2( pc, "damage", ( ComponentGetValue2( pc, "damage" ) or 0 ) * mult )
 	for _, t in ipairs( MAHORAGA_ADAPT_ORDER ) do
 		local f = MAHORAGA_ADAPT[t].field
-		if f ~= "projectile" and f ~= "drowning" then
+		if not MH_NOT_PROJECTILE_FIELD[ f ] then
 			local v = ComponentObjectGetValue2( pc, "damage_by_type", f ) or 0
 			if v > 0 then ComponentObjectSetValue2( pc, "damage_by_type", f, v * mult ) end
 		end

@@ -28,7 +28,7 @@ end
 function damage_received( damage, message, entity_thats_responsible, is_fatal, projectile_thats_responsible )
 	if damage <= 0 then return end
 	local me = GetUpdatedEntityID()
-	local t = mh_damage_type( message, projectile_thats_responsible )
+	local t = mh_damage_type( message, projectile_thats_responsible, me )
 	if t == nil then return end
 	local row = MAHORAGA_ADAPT[ t ]
 	local steps = mh_get( me, "padapt_steps_" .. t, 0 )
@@ -53,6 +53,15 @@ function damage_received( damage, message, entity_thats_responsible, is_fatal, p
 	if dmc ~= nil then
 		if full and t == "drowning" then
 			ComponentSetValue2( dmc, "air_needed", false )
+		elseif full and t == "material" then
+			ComponentSetValue2( dmc, "materials_damage", false )
+		elseif t == "material" then
+			-- every harmful material hurts less (materials_how_much_damage is a comma list)
+			local amounts = {}
+			for v in string.gmatch( ComponentGetValue2( dmc, "materials_how_much_damage" ) or "", "[^,]+" ) do
+				table.insert( amounts, tostring( ( tonumber( v ) or 0 ) * row.player_step_mult ) )
+			end
+			ComponentSetValue2( dmc, "materials_how_much_damage", table.concat( amounts, "," ) )
 		elseif full then
 			ComponentObjectSetValue2( dmc, "damage_multipliers", row.field, 0 )
 		elseif t == "drowning" then
